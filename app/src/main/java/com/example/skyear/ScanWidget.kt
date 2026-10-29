@@ -7,7 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 
-// Home-screen widget: "Start scan" opens Sky Ear and starts a scan; the name opens the app as usual.
+// Home-screen widget: "Start scan" opens SkyEar and starts a scan; the name opens the app as usual.
 class ScanWidget : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {

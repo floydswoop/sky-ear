@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Sky Ear</title>
+<title>SkyEar</title>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 --bg:#eef0ee;--fg:#16201c;--mut:#5b6862;--card:#fff;--ac:#0b6e5a;--acfg:#fff;--bd:#c9d0cc;--fl:#b3480b;--flfg:#fff;--ll:0}
@@ -75,7 +75,7 @@ input[type=range]{grid-column:1/3;width:100%;accent-color:var(--ac);height:28px}
 </head>
 <body>
 <main>
-<div class="top"><h1>Sky Ear</h1><div class="hbtns"><button id="setB" type="button" aria-label="Settings">Settings</button><button id="hlp" type="button" aria-label="Help and first-run guide">Help</button></div></div>
+<div class="top"><h1>SkyEar</h1><div class="hbtns"><button id="setB" type="button" aria-label="Settings">Settings</button><button id="hlp" type="button" aria-label="Help and first-run guide">Help</button></div></div>
 <div id="sr" class="sr" role="status" aria-live="polite" aria-atomic="true"></div>
 <div class="row tabs" role="tablist" aria-label="Sections"><button id="tOv" class="sel" role="tab" aria-selected="true" aria-controls="ovh">Field</button><button id="tSyn" role="tab" aria-selected="false" aria-controls="syn">Synth</button><button id="tQz" role="tab" aria-selected="false" aria-controls="qz">Quiz</button><button id="tLs" role="tab" aria-selected="false" aria-controls="lsn">Listen</button><button id="tLb" role="tab" aria-selected="false" aria-controls="cls">Library</button></div>
 <section id="syn" role="tabpanel" aria-labelledby="tSyn" hidden>
@@ -1339,7 +1339,7 @@ function wxDraw(){
 
 // ---- First-run guide ----
 const GUIDE=[
- {t:'Welcome to Sky Ear',b:['Sky Ear helps you learn what drones and aircraft sound like, and match a sound you hear to what is overhead.','It is free and open source. It is experimental: not a drone detector and not a safety system.']},
+ {t:'Welcome to SkyEar',b:['SkyEar helps you learn what drones and aircraft sound like, and match a sound you hear to what is overhead.','It is free and open source. It is experimental: not a drone detector and not a safety system.']},
  {t:'Permissions',b:['When you first start a scan, Android asks for three things: the microphone (to listen and record), location (to find aircraft near you) and nearby devices (to hear drones that broadcast Remote ID).','Audio is analyzed on your phone. If you decline one, only the feature that needs it stops working.']},
  {t:'Start a scan',b:['On the Field tab, tap Start scan. It listens through the microphone, checks aircraft data regularly (you can change how often in Settings) and scans for Remote ID signals.','Go outside and wait a moment for GPS. Aircraft and weather lookups send your approximate location to api.adsb.lol and open-meteo.com.']},
  {t:'Read the radar',b:['The radar shows aircraft around you. Hold the back of the phone toward the sky: the shaded wedge is where you are pointing.','Open an aircraft from the list to see where it is now and where its sound is coming from. Sound arrives seconds late, so the two differ. With a screen reader, use the aircraft list under the radar; the radar itself is read as a summary.']},

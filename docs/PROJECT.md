@@ -1,8 +1,8 @@
-# Sky Ear
+# SkyEar
 
 An Android app for learning what drones and aircraft sound like, and for building a library of labeled recordings.
 
-Sky Ear started as a drone-safety idea: help people recognize the sound of different drones, and tell them apart from the many things that sound similar (leaf blowers, mopeds, insects, small planes). It has since grown into a small field kit:
+SkyEar started as a drone-safety idea: help people recognize the sound of different drones, and tell them apart from the many things that sound similar (leaf blowers, mopeds, insects, small planes). It has since grown into a small field kit:
 
 - **Synth.** Builds drone and lookalike sounds from adjustable parameters (blade count, motor count, RPM, load, distance, Doppler fly-by). Includes a library of 15 drone presets and 10 non-drone lookalikes.
 - **Quiz.** Plays hidden sounds and scores you on drone vs. not-a-drone and on drone type. Reports hits, false alarms and d-prime. Can use the synthesized sounds, your own labeled recordings, or both.
@@ -27,7 +27,7 @@ Sky Ear started as a drone-safety idea: help people recognize the sound of diffe
 
 The full, beginner-friendly walkthrough is in **[docs/BUILDING.md](BUILDING.md)**. In short:
 
-1. Create a new **Empty Activity** project in Android Studio named **Sky Ear** (keep the default package `com.example.skyear`).
+1. Create a new **Empty Activity** project in Android Studio named **SkyEar** (keep the default package `com.example.skyear`).
 2. Copy the files from this repository's `app/src/main` folder over the matching files in your project.
 3. Press Run with your phone connected.
 

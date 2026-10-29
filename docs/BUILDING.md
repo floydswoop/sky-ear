@@ -1,8 +1,8 @@
-# Building Sky Ear
+# Building SkyEar
 
 This guide assumes no Android experience. Allow about an hour the first time, mostly waiting for downloads.
 
-Sky Ear is a small Android app that shows a web page (the whole interface) and adds the phone features a web page cannot reach: microphone, location, aircraft data, Bluetooth and Wi-Fi scanning, and motion sensors.
+SkyEar is a small Android app that shows a web page (the whole interface) and adds the phone features a web page cannot reach: microphone, location, aircraft data, Bluetooth and Wi-Fi scanning, and motion sensors.
 
 ## What you need
 
@@ -19,11 +19,11 @@ Sky Ear is a small Android app that shows a web page (the whole interface) and a
 ## 2. Create a blank project
 
 1. In Android Studio choose **New Project > Empty Activity > Next**.
-2. Set **Name** to `Sky Ear`. Leave the **Package name** as the default (`com.example.skyear`). Keep **Language: Kotlin**. A minimum SDK of API 24 or higher is fine.
+2. Set **Name** to `SkyEar`. Leave the **Package name** as the default (`com.example.skyear`). Keep **Language: Kotlin**. A minimum SDK of API 24 or higher is fine.
 3. Click **Finish** and wait for the bottom progress bar to stop.
-4. Choose your phone from the device list at the top and press the green **Run** button. You should see "Hello Android" on the phone. This proves your tools work. If it doesn't, fix that first; it is not a Sky Ear problem.
+4. Choose your phone from the device list at the top and press the green **Run** button. You should see "Hello Android" on the phone. This proves your tools work. If it doesn't, fix that first; it is not a SkyEar problem.
 
-## 3. Copy in the Sky Ear files
+## 3. Copy in the SkyEar files
 
 This repository's `app/src/main` folder mirrors the one in your project. Copy these files. Create the folders that don't exist yet (`layout`, `xml`, `drawable`):
 
@@ -37,6 +37,10 @@ This repository's `app/src/main` folder mirrors the one in your project. Copy th
 | `app/src/main/res/layout/widget_scan.xml` | `app/src/main/res/layout/widget_scan.xml` (new) |
 | `app/src/main/res/xml/scan_widget_info.xml` | `app/src/main/res/xml/scan_widget_info.xml` (new) |
 | `app/src/main/res/drawable/widget_bg.xml` and `widget_btn.xml` | `app/src/main/res/drawable/` (new) |
+| `app/src/main/res/drawable/ic_launcher_background.xml` | same path (replace; the logo's background) |
+| `app/src/main/res/drawable-nodpi/ic_launcher_fg.png` and `ic_launcher_mono.png` | `app/src/main/res/drawable-nodpi/` (new; the logo) |
+| `app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` and `ic_launcher_round.xml` | same path (replace) |
+| `app/src/main/res/mipmap-*/ic_launcher.webp` and `ic_launcher_round.webp` | same paths (replace all five density folders) |
 
 Tips:
 - **Replace a file completely:** open it in Android Studio, press Ctrl+A, Delete, then paste the new contents. Don't merge old and new text.
@@ -50,7 +54,7 @@ Tips:
 2. Press the green **Run** button.
 3. The first start asks for permissions as you use each feature: microphone, location, and nearby devices.
 
-To check everything works: open the **Synth** tab and tap Start (use headphones), then try the **Field** tab's **Start scan** button. To try the widget, long-press the home screen, choose Widgets and add Sky Ear.
+To check everything works: open the **Synth** tab and tap Start (use headphones), then try the **Field** tab's **Start scan** button. To try the widget, long-press the home screen, choose Widgets and add SkyEar.
 
 ## Updating
 
@@ -64,7 +68,7 @@ Replace the changed files the same way, run **Build > Clean Project**, then Run.
 | Red error `... overrides nothing` or `Unresolved reference` | A partly pasted or mixed file. Replace the whole file as described above. If it persists, open an issue with every line starting `e:` from the Build panel. |
 | App closes at launch; Logcat says `FileNotFoundException: index.html` | `index.html` is not at `app/src/main/assets/index.html`, or has a different name such as `index (1).html`. |
 | Overhead or Library say "Android app only" | The page is old or the Kotlin file is old. Replace both files and Clean Project. |
-| Microphone message `NotAllowedError` | The manifest lacks `RECORD_AUDIO` / `MODIFY_AUDIO_SETTINGS`, or the permission was denied: Settings > Apps > Sky Ear > Permissions. |
+| Microphone message `NotAllowedError` | The manifest lacks `RECORD_AUDIO` / `MODIFY_AUDIO_SETTINGS`, or the permission was denied: Settings > Apps > SkyEar > Permissions. |
 | No location prompt | The manifest lacks the location permissions. Rebuild after fixing it. |
 | Remote ID finds nothing | Turn on Bluetooth, Wi-Fi and Location. Only drones that broadcast Remote ID appear. Wi-Fi updates are slow (about every 30 seconds). |
 | Compass reading looks wrong | Wave the phone in a figure 8 to calibrate; keep it away from metal and magnets. |

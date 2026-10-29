@@ -1,6 +1,6 @@
 # Privacy
 
-Sky Ear has no accounts, no analytics, no advertising and no server of its own.
+SkyEar has no accounts, no analytics, no advertising and no server of its own.
 
 ## What stays on your phone
 

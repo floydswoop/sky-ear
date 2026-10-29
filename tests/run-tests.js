@@ -1,4 +1,4 @@
-// Sky Ear logic tests. Run with:  node tests/run-tests.js
+// SkyEar logic tests. Run with:  node tests/run-tests.js
 // They load the script inside app/src/main/assets/index.html with a stubbed
 // browser, so no Android device or browser is needed.
 const fs = require('fs');

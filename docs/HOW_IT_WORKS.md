@@ -1,4 +1,4 @@
-# How Sky Ear works
+# How SkyEar works
 
 ## Architecture
 
@@ -154,4 +154,4 @@ The Field tab is built around the scan button, the radar and the aircraft list. 
 
 ## Home-screen widget
 
-Long-press the home screen, choose Widgets, and add **Sky Ear**. Its **Start scan** button opens the app (or brings it forward) and starts a scan, and the name opens the app normally. The button sends the app an intent extra; the page runs `widgetStart()` once it has loaded, so it also works from a cold start. It does nothing while the first-run guide is open. Android still asks for microphone and location permission as usual the first time.
+Long-press the home screen, choose Widgets, and add **SkyEar**. Its **Start scan** button opens the app (or brings it forward) and starts a scan, and the name opens the app normally. The button sends the app an intent extra; the page runs `widgetStart()` once it has loaded, so it also works from a cold start. It does nothing while the first-run guide is open. Android still asks for microphone and location permission as usual the first time.

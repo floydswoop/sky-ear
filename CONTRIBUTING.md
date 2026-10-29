@@ -1,4 +1,4 @@
-# Contributing to Sky Ear
+# Contributing to SkyEar
 
 Thanks for helping. Bug reports, field-test results and improvements are all welcome.
 

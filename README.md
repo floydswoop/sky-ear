@@ -1,8 +1,10 @@
-# Sky Ear
+<p align="center"><img src="docs/logo.png" width="128" alt="SkyEar logo: an ear with sound waves and a wing"></p>
+
+# SkyEar
 
 **A free, open-source Android app for learning what drones and aircraft sound like, and for building a library of labeled recordings.**
 
-Sky Ear started as a drone-safety idea: help people recognize the sound of different drones and tell them apart from the many things that sound similar (leaf blowers, mopeds, insects, small planes). It is not for sale and never will be.
+SkyEar started as a drone-safety idea: help people recognize the sound of different drones and tell them apart from the many things that sound similar (leaf blowers, mopeds, insects, small planes). It is not for sale and never will be.
 
 > **Status: experimental (version 0.2).** Field-tested on a single Android phone. It is a learning and research tool, **not** a drone detector or a safety system. Do not use it for navigation or anything safety-critical.
 
@@ -19,7 +21,7 @@ Sky Ear started as a drone-safety idea: help people recognize the sound of diffe
 
 ## Try it
 
-1. On your Android phone, download the APK from the **[latest release](https://github.com/floydswoop/sky-ear/releases)** (Sky Ear v0.2).
+1. On your Android phone, download the APK from the **[latest release](https://github.com/floydswoop/sky-ear/releases)** (SkyEar v0.2).
 2. Open it and allow installs from this source when Android asks. (It is an unsigned debug build for testing.)
 3. Allow microphone, location and nearby devices on first use. Headphones help, since phone speakers cannot reproduce low tones.
 
