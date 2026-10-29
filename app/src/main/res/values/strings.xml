@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Sky Ear</string>
+    <string name="widget_title">Sky Ear</string>
+    <string name="widget_scan">Start scan</string>
+    <string name="widget_scan_desc">Start a Sky Ear scan</string>
+    <string name="widget_open_desc">Open Sky Ear</string>
+    <string name="widget_description">Start a Sky Ear scan from your home screen</string>
 </resources>

@@ -82,6 +82,11 @@ class MainActivity : ComponentActivity() {
     private var recRadius = 15
 
     @Volatile private var recording = false
+    @Volatile private var scanKeepOn = false
+
+    // Set by the home-screen widget: start a scan as soon as the page is ready.
+    private var pageReady = false
+    private var pendingWidgetStart = false
 
     // Phone orientation (compass and tilt) while recording
     private var sensorListener: SensorEventListener? = null
@@ -196,6 +201,19 @@ class MainActivity : ComponentActivity() {
             return getSharedPreferences("settings", Context.MODE_PRIVATE).getString(key, "") ?: ""
         }
 
+        // Text size from Settings (percent). Android scales the page's text with it.
+        @JavascriptInterface
+        fun setTextZoom(pct: Int) {
+            runOnUiThread { web.settings.textZoom = pct.coerceIn(80, 200) }
+        }
+
+        // "Keep the screen on while scanning" from Settings.
+        @JavascriptInterface
+        fun setKeepScreenOn(on: Boolean) {
+            scanKeepOn = on
+            runOnUiThread { web.keepScreenOn = on || recording }
+        }
+
         @JavascriptInterface
         fun setPref(key: String, value: String) {
             if (!Regex("[A-Za-z0-9_]+").matches(key) || value.length > 200) return
@@ -263,7 +281,17 @@ class MainActivity : ComponentActivity() {
         web.settings.domStorageEnabled = true
         web.settings.mediaPlaybackRequiresUserGesture = false
 
+        pendingWidgetStart = intent?.getBooleanExtra(EXTRA_START_SCAN, false) == true
+
         web.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                pageReady = true
+                if (pendingWidgetStart) {
+                    pendingWidgetStart = false
+                    runWidgetStart()
+                }
+            }
+
             // Only the bundled page may run here, so block all other navigation.
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean = true
 
@@ -326,6 +354,23 @@ class MainActivity : ComponentActivity() {
             insets
         }
         setContentView(box)
+    }
+
+    // The home-screen widget opens the app with EXTRA_START_SCAN. A running app gets it here.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_START_SCAN, false)) {
+            if (pageReady) runWidgetStart() else pendingWidgetStart = true
+        }
+    }
+
+    private fun runWidgetStart() {
+        web.evaluateJavascript("if (window.widgetStart) widgetStart()", null)
+    }
+
+    companion object {
+        const val EXTRA_START_SCAN = "com.skyear.START_SCAN"
     }
 
     // ---------- helpers ----------
@@ -443,6 +488,9 @@ class MainActivity : ComponentActivity() {
         return out
     }
 
+    private fun wxEnabled(): Boolean =
+        getSharedPreferences("settings", Context.MODE_PRIVATE).getString("wxOn", "1") != "0"
+
     // Current weather from Open-Meteo (free, no key). Location is rounded to about 1 km before it is sent.
     // Returns null when the service cannot be reached, so callers treat weather as optional.
     private fun queryWeather(lat: Double, lon: Double): JSONObject? {
@@ -503,7 +551,7 @@ class MainActivity : ComponentActivity() {
                     .put("provider", loc.provider ?: "")
                 if (loc.hasAltitude()) fix.put("alt", loc.altitude)
                 val msg = JSONObject().put("ac", out).put("fix", fix)
-                val wx = queryWeather(loc.latitude, loc.longitude)
+                val wx = if (wxEnabled()) queryWeather(loc.latitude, loc.longitude) else null
                 if (wx != null) msg.put("wx", wx)
                 sendToPage("onOverhead", msg.toString())
             } catch (e: Exception) {
@@ -722,7 +770,7 @@ class MainActivity : ComponentActivity() {
         st.lat = loc.latitude
         st.lon = loc.longitude
         st.acc = loc.accuracy
-        st.wx = queryWeather(loc.latitude, loc.longitude)
+        st.wx = if (wxEnabled()) queryWeather(loc.latitude, loc.longitude) else null
         try {
             declination = GeomagneticField(
                 loc.latitude.toFloat(), loc.longitude.toFloat(), loc.altitude.toFloat(), System.currentTimeMillis()
@@ -755,7 +803,7 @@ class MainActivity : ComponentActivity() {
 
     private fun finishRecording(st: RecState, sr: Int, radius: Int) {
         runOnUiThread {
-            web.keepScreenOn = false
+            web.keepScreenOn = scanKeepOn
             if (!compassWanted) stopOrientation()
         }
         val wav = File(clipsDir(), "${st.id}.wav")

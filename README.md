@@ -11,6 +11,7 @@ Sky Ear started as a drone-safety idea: help people recognize the sound of diffe
 | Tab | What you can do |
 |---|---|
 | **Field** | One **Start scan** button listens through the microphone, checks public ADS-B data for nearby aircraft every 15 seconds, and scans for drones broadcasting Remote ID. A **radar** shows nearby aircraft and the direction your phone is pointing. You can also record labeled clips tagged with the aircraft and phone direction. |
+| **Settings** | Units, theme, text size, scan interval, beam width, weather on or off, and more. |
 | **Synth** | Build drone and lookalike sounds from adjustable parameters (blades, motors, RPM, load, distance, fly-by). 15 drone presets and 10 non-drone lookalikes. |
 | **Quiz** | Hidden sounds, scored on drone vs. not-a-drone, with hits, false alarms and d-prime. |
 | **Listen** | Analyze the microphone or a saved recording: spectrogram, pitch, harmonics, closest presets. |

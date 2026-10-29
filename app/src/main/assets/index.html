@@ -30,7 +30,7 @@ select{font:inherit;font-weight:600;width:100%;min-height:44px;border:1px solid 
 button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
 .sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}.top h1{margin:0}
-#hlp{min-width:44px;padding:6px 14px}
+#hlp,#setB{min-width:44px;padding:6px 12px}
 #oOut p[data-hex]{padding:4px 0}
 #gd{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.62);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom))}
 #gd[hidden]{display:none}
@@ -40,6 +40,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-v
 .gstep{color:var(--mut);font-size:14px}
 .gdots{display:flex;gap:6px;margin:8px 0 14px}.gdots i{width:8px;height:8px;border-radius:50%;background:var(--bd)}.gdots i.on{background:var(--ac)}
 .gc .row{margin:0}
+details.sec{border-top:1px solid var(--bd);margin-top:6px}
+details.sec>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:48px}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary h2{font-size:20px;margin:0}
+details.sec>summary::after{content:"\25B8";color:var(--mut);font-size:18px;order:3}
+details.sec[open]>summary::after{content:"\25BE"}
+.sum{color:var(--mut);font-size:14px;margin-left:auto;text-align:right}
+details.sec>.in{padding-bottom:6px}
+.grp{font-size:18px;margin:22px 0 4px;color:var(--ac)}
+label.chk{grid-template-columns:auto 1fr;align-items:center;gap:10px;min-height:44px}
+label.chk input{width:24px;height:24px;accent-color:var(--ac);margin:0}
+.hint{color:var(--mut);font-size:14px;margin:0 0 6px}
+.hbtns{display:flex;gap:6px}
 canvas{width:100%;height:120px;display:block;background:#000;border-radius:8px}
 #ovh .rc{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin:0 0 14px}
 .rc .rch{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.rc .rch b{font-size:22px}.rc .rch span{color:var(--mut);text-align:right}
@@ -62,7 +75,7 @@ input[type=range]{grid-column:1/3;width:100%;accent-color:var(--ac);height:28px}
 </head>
 <body>
 <main>
-<div class="top"><h1>Sky Ear</h1><button id="hlp" type="button" aria-label="Help and first-run guide">Help</button></div>
+<div class="top"><h1>Sky Ear</h1><div class="hbtns"><button id="setB" type="button" aria-label="Settings">Settings</button><button id="hlp" type="button" aria-label="Help and first-run guide">Help</button></div></div>
 <div id="sr" class="sr" role="status" aria-live="polite" aria-atomic="true"></div>
 <div class="row tabs" role="tablist" aria-label="Sections"><button id="tOv" class="sel" role="tab" aria-selected="true" aria-controls="ovh">Field</button><button id="tSyn" role="tab" aria-selected="false" aria-controls="syn">Synth</button><button id="tQz" role="tab" aria-selected="false" aria-controls="qz">Quiz</button><button id="tLs" role="tab" aria-selected="false" aria-controls="lsn">Listen</button><button id="tLb" role="tab" aria-selected="false" aria-controls="cls">Library</button></div>
 <section id="syn" role="tabpanel" aria-labelledby="tSyn" hidden>
@@ -89,31 +102,52 @@ input[type=range]{grid-column:1/3;width:100%;accent-color:var(--ac);height:28px}
 <div class="stack"><button id="lUse" hidden>Copy best match to Synth</button></div>
 </section>
 <section id="ovh" role="tabpanel" aria-labelledby="tOv">
-<p class="mut">One tap listens through the microphone, checks public ADS-B data for aircraft near you every 15 seconds, and scans for drones broadcasting Remote ID. This sends your approximate location to the aircraft data service (api.adsb.lol) and, rounded to about 1 km, to the weather service (open-meteo.com). Android app only.</p>
 <div class="row"><button id="cbGo" class="main">Start scan</button></div>
+<p class="cap" id="cbHint">Listens, checks aircraft and scans for drone signals. Your approximate location goes to the aircraft and weather services. Android app only.</p>
 <div id="cbOut" class="res"></div>
-<div class="rc" id="wxCard" role="region" aria-label="Weather at your location" hidden></div>
 <label><span>Search radius</span><b id="oR"></b><input type="range" id="oRad" min="5" max="50" step="5" value="15" aria-valuetext="15 nautical miles"></label>
 <canvas id="rdr" width="640" height="640" role="img" aria-label="Radar of nearby aircraft and the direction the phone points"></canvas>
 <div class="row"><button id="rdMode">Radar: pointing up</button></div>
 <p class="cap" id="rdCap"></p>
-<p class="cap" id="rdDbg"></p>
+<p class="cap" id="rdDbg" hidden></p>
 <div class="rc" id="rdCard" role="region" aria-label="Aircraft details" tabindex="-1" hidden></div>
-<h2 style="font-size:20px;margin:20px 0 6px">Aircraft overhead</h2>
-<div class="row"><button id="oGo" class="main">What's overhead</button></div>
-<div id="oOut" class="res"></div>
-<h2 style="font-size:20px;margin:20px 0 6px">Broadcasting drones (Remote ID)</h2>
-<p class="mut">Listens for the standard Remote ID signals that drones broadcast over Bluetooth and Wi-Fi. It only shows drones that broadcast, within roughly a few hundred meters. Android app only.</p>
+<details class="sec" id="dAir" open><summary><h2>Aircraft overhead</h2><span class="sum" id="airS"></span></summary><div class="in">
+<div class="row"><button id="oGo">Refresh list</button></div>
+<div id="oOut" class="res"></div></div></details>
+<details class="sec" id="dWx" hidden><summary><h2>Weather</h2><span class="sum" id="wxS"></span></summary><div class="in">
+<div class="rc" id="wxCard" role="region" aria-label="Weather at your location" hidden></div></div></details>
+<details class="sec" id="dRid"><summary><h2>Drone signals (Remote ID)</h2></summary><div class="in">
+<p class="mut">Listens for the Remote ID signals that drones broadcast over Bluetooth and Wi-Fi, within a few hundred meters. Only drones that broadcast appear. Android app only.</p>
 <div class="row"><button id="idGo" class="main">Start scanning</button></div>
 <div id="idSt" class="res"></div>
-<div id="idList" class="res"></div>
-<h2 style="font-size:20px;margin:20px 0 6px">Record a clip</h2>
-<p class="mut">Records audio and tags it with nearby aircraft from ADS-B, using the search radius above. Keep the screen on and point the phone toward the sound. Stops by itself after 2 minutes.</p>
+<div id="idList" class="res"></div></div></details>
+<details class="sec" id="dRec"><summary><h2>Record a clip</h2></summary><div class="in">
+<p class="mut">Records audio tagged with nearby aircraft, weather and the direction you point (aim mode is in Settings). Keep the screen on and point the phone at the sound. Stops after 2 minutes.</p>
 <div class="row"><button id="rGo" class="main">Start recording</button></div>
 <div aria-hidden="true" style="height:8px;background:var(--bd);border-radius:4px;overflow:hidden;margin-bottom:8px"><div id="rLv" style="height:100%;width:0;background:var(--ac)"></div></div>
-<label><span>Aim with</span><select id="ptMode" style="grid-column:1/3"><option value="1">Back of phone (like a camera)</option><option value="2">Top edge of phone</option></select></label>
 <div id="ptLive" class="res"></div>
-<div id="rSt" class="res"></div>
+<div id="rSt" class="res"></div></div></details>
+</section>
+<section id="set" role="tabpanel" aria-label="Settings" hidden>
+<h2 style="font-size:22px;margin:8px 0 0">Settings</h2>
+<p class="hint">Saved on this phone.</p>
+<h3 class="grp">Display</h3>
+<label><span>Units</span><select id="sUnits" style="grid-column:1/3"><option value="av">Aviation: km, feet, knots, nm</option><option value="si">Metric: km, meters, km/h</option><option value="us">US: miles, feet, mph</option></select></label>
+<label><span>Theme</span><select id="sTheme" style="grid-column:1/3"><option value="auto">Match the phone</option><option value="light">Light</option><option value="dark">Amber low-light</option></select></label>
+<label><span>Text size</span><select id="sText" style="grid-column:1/3"><option value="100">Normal</option><option value="120">Large</option><option value="140">Largest</option></select></label>
+<label class="chk"><input type="checkbox" id="sDiag"><span>Show position diagnostics under the radar</span></label>
+<h3 class="grp">Scan</h3>
+<label><span>Check aircraft every</span><select id="sScan" style="grid-column:1/3"><option value="10">10 seconds</option><option value="15">15 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option></select></label>
+<label class="chk"><input type="checkbox" id="sKeep"><span>Keep the screen on while scanning</span></label>
+<label class="chk"><input type="checkbox" id="sWx"><span>Get the weather (sends your location, rounded to about 1 km, to open-meteo.com)</span></label>
+<h3 class="grp">Pointing</h3>
+<label><span>Aim with</span><select id="ptMode" style="grid-column:1/3"><option value="1">Back of phone (like a camera)</option><option value="2">Top edge of phone</option></select></label>
+<label><span>Beam width</span><select id="sBeam" style="grid-column:1/3"><option value="10">Narrow, 10 degrees</option><option value="15">Normal, 15 degrees</option><option value="25">Wide, 25 degrees</option></select></label>
+<h3 class="grp">Screen reader</h3>
+<label class="chk"><input type="checkbox" id="sSpeak"><span>Announce scan results and events</span></label>
+<h3 class="grp">Help</h3>
+<div class="stack"><button id="sGuide" type="button">Show the first-run guide</button><button id="sReset" type="button">Reset all settings</button></div>
+<p class="cap" id="sMsg" role="status"></p>
 </section>
 <section id="cls" role="tabpanel" aria-labelledby="tLb" hidden>
 <p class="mut">Clips you recorded, with analysis and likely aircraft sources. They are stored on this phone.</p>
@@ -132,9 +166,20 @@ try{llUpdate();matchMedia('(prefers-color-scheme: dark)').addEventListener('chan
 const $=s=>document.querySelector(s);
 // Screen reader announcements: one polite live region. sayChange() speaks only when its key changes,
 // so a scan that repeats every 15 s does not repeat the same sentence.
+// Settings (saved on the phone). Defaults match how the app behaved before Settings existed.
+let UNITS=prefGet('units')||'av',SCAN_MS=(+prefGet('scanS')||15)*1000,BEAM=+prefGet('beam')||15,
+    WX_ON=prefGet('wxOn')!=='0',SPEAK=prefGet('speak')!=='0',KEEP_ON=prefGet('keepOn')==='1',DIAG=prefGet('diag')==='1';
+function fmtD(m){
+  if(UNITS==='us'){const ft=m*3.28084;return ft<1000?Math.round(ft)+' ft':(m/1609.344).toFixed(1)+' mi'}
+  return m<1000?Math.round(m)+' m':(m/1000).toFixed(1)+' km';
+}
+function fmtAlt(ft){return UNITS==='si'?Math.round(ft*.3048).toLocaleString()+' m':ft.toLocaleString()+' ft'}
+function fmtSpd(kt){return UNITS==='si'?Math.round(kt*1.852)+' km/h':UNITS==='us'?Math.round(kt*1.15078)+' mph':Math.round(kt)+' kt'}
+function fmtRad(nm){const k=UNITS==='si'?1.852:UNITS==='us'?1.15078:1;return Math.round(nm*k*10)/10+(UNITS==='si'?' km':UNITS==='us'?' mi':' nm')}
+function radSpoken(n){return fmtRad(n).replace(/ nm$/,' nautical miles').replace(/ km$/,' kilometers').replace(/ mi$/,' miles')}
 let sayLast='',sayT=0;const sayKeys={};
 function say(t){
-  const e=$('#sr');if(!e||!t||(t===sayLast&&Date.now()-sayT<8000))return;
+  const e=$('#sr');if(!SPEAK||!e||!t||(t===sayLast&&Date.now()-sayT<8000))return;
   sayLast=t;sayT=Date.now();e.textContent='';setTimeout(()=>{e.textContent=t},60);
 }
 function sayChange(k,key,t){if(sayKeys[k]===key)return;sayKeys[k]=key;say(t)}
@@ -392,10 +437,12 @@ box.onclick=e=>{
   else if(a==='snd'){qMute=!qMute;mg.gain.setTargetAtTime(qMute?0:.8,ctx.currentTime,.05);b.textContent=qMute?'Play sound':'Stop sound'}
   else if(a==='next')qNext();else if(a.startsWith('t:'))qFin(a.slice(2));
 };
+let lastTab='ovh';
 function tab(w){
   qStopSrc();
   if(Q&&Q.backup){Object.assign(v,Q.backup);Q.backup=null;if(ctx)build()}
-  ['syn','qz','lsn','ovh','cls'].forEach(id=>$('#'+id).hidden=id!==w);
+  ['syn','qz','lsn','ovh','cls','set'].forEach(id=>$('#'+id).hidden=id!==w);
+  if(w!=='set')lastTab=w;$('#setB').textContent=w==='set'?'Done':'Settings';$('#setB').setAttribute('aria-label',w==='set'?'Close settings':'Settings');
   [['tSyn','syn'],['tQz','qz'],['tLs','lsn'],['tOv','ovh'],['tLb','cls']].forEach(([b,id])=>{$('#'+b).classList.toggle('sel',id===w);$('#'+b).setAttribute('aria-selected',id===w?'true':'false')});
   on=false;if(ctx)mg.gain.setTargetAtTime(0,ctx.currentTime,.05);
   $('#go').textContent='Start';$('#fly').disabled=true;
@@ -404,6 +451,7 @@ function tab(w){
   compassWant(w==='ovh');if(w==='ovh')rdDraw();
   if(w==='syn')P.forEach(p=>{els[p[0]].i.value=v[p[0]];els[p[0]].show()});
 }
+$('#setB').onclick=()=>tab($('#set').hidden?'set':lastTab);
 $('#tSyn').onclick=()=>tab('syn');$('#tQz').onclick=()=>tab('qz');$('#tLs').onclick=()=>tab('lsn');$('#tOv').onclick=()=>tab('ovh');$('#tLb').onclick=()=>tab('cls');
 
 // ---- Listen (microphone) ----
@@ -569,25 +617,34 @@ $('#lUse').onclick=()=>{
 // ---- Overhead (ADS-B, Android app only) ----
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const cmp=b=>['N','NE','E','SE','S','SW','W','NW'][Math.round(b/45)%8];
-const radText=()=>{const n=$('#oRad').value;$('#oR').textContent=n+' nm';$('#oRad').setAttribute('aria-valuetext',n+' nautical miles')};
-$('#oRad').oninput=radText;radText();
+const radText=()=>{const n=+$('#oRad').value;$('#oR').textContent=fmtRad(n);$('#oRad').setAttribute('aria-valuetext',radSpoken(n))};
+{const r=prefGet('radNm');if(r&&+r>=5&&+r<=50)$('#oRad').value=r}
+$('#oRad').oninput=()=>{radText();prefSet('radNm',$('#oRad').value)};radText();
 $('#oGo').onclick=()=>{
   if(!window.Android){$('#oOut').textContent='This works in the Android app only.';return}
   $('#oOut').textContent='Getting your location and nearby aircraft...';
   Android.requestOverhead(+$('#oRad').value);
 };
+// Called by the Android app when the home-screen widget's Start scan button opened it.
+function widgetStart(){tab('ovh');if($('#gd').hidden&&!cbOn)cbStart()}
 function onOverheadError(m){say(m);$('#oOut').textContent=m;ovErr=m;cbOvDone();cbRender()}
 function onOverhead(js){
   const r=JSON.parse(js),o=$('#oOut');
   const ac=r.ac.slice().sort((a,b)=>a.distM-b.distM).slice(0,12);
-  ovErr=null;ovLast={t:Date.now(),all:r.ac.length,near:ac[0]||null};rdFix=r.fix||null;if(r.wx)wxSet(r.wx);rdSet(r.ac);cbOvDone();cbRender();
+  ovErr=null;ovLast={t:Date.now(),all:r.ac.length,near:ac[0]||null};rdFix=r.fix||null;if(r.wx&&WX_ON)wxSet(r.wx);rdSet(r.ac);$('#airS').textContent=r.ac.length+' aircraft';cbOvDone();cbRender();
   if(!ac.length){o.textContent='No aircraft reported within that radius right now.';sayChange('air','none','No aircraft reported nearby.');return}
   {const n=ac[0];sayChange('air',r.ac.length+':'+n.hex,r.ac.length+(r.ac.length===1?' aircraft':' aircraft')+' reported. Nearest: '+(n.flight||n.type||n.hex)+', '+(n.distM/1000).toFixed(1)+' kilometers '+cmp(n.bearing)+'.')}
+  ovAc=ac;ovTotal=r.ac.length;ovRender();
+}
+let ovAc=[],ovTotal=0;
+function ovRender(){
+  const o=$('#oOut'),ac=ovAc,r={ac:{length:ovTotal}};
+  if(!ac.length)return;
   o.innerHTML=ac.map(a=>{
     const alt=typeof a.altFt==='number'?a.altFt:null,el=alt!==null?Math.round(Math.atan2(alt*.3048,a.distM)*180/Math.PI):null;
-    const parts=[(a.distM/1000).toFixed(1)+' km '+cmp(a.bearing)+' ('+Math.round(a.bearing)+'°)'];
-    if(alt!==null)parts.push(alt.toLocaleString()+' ft');else if(a.altFt==='ground')parts.push('on ground');
-    if(a.gs>0)parts.push(Math.round(a.gs)+' kt');
+    const parts=[fmtD(a.distM)+' '+cmp(a.bearing)+' ('+Math.round(a.bearing)+'°)'];
+    if(alt!==null)parts.push(fmtAlt(alt));else if(a.altFt==='ground')parts.push('on ground');
+    if(a.gs>0)parts.push(fmtSpd(a.gs));
     if(el!==null)parts.push(el+'° above horizon');
     return '<p data-hex="'+esc(a.hex)+'" tabindex="0" role="button" aria-label="Details for '+esc((a.flight||a.hex)+', '+(a.type||'unknown type')+', '+parts.join(', '))+'"><b>'+esc(a.flight||a.hex)+'</b> '+esc(a.type||'?')+(a.reg?' '+esc(a.reg):'')+'<br>'+esc(parts.join(', '))+'</p>';
   }).join('')+'<p class="mut">'+r.ac.length+' aircraft reported. Positions are a few seconds old.</p>';
@@ -673,7 +730,7 @@ function topLine(m){
   const c=(m.candidates||[])[0];
   if(m.lat==null)return 'No location, so no aircraft tags';
   if(!c)return 'No aircraft found nearby';
-  return esc((c.type||'?')+' '+(c.flight||c.hex))+', closest '+(c.minR/1000).toFixed(1)+' km'+(m.analysis&&m.analysis.f0?', '+Math.round(m.analysis.f0)+' Hz':'');
+  return esc((c.type||'?')+' '+(c.flight||c.hex))+', closest '+fmtD(c.minR)+(m.analysis&&m.analysis.f0?', '+Math.round(m.analysis.f0)+' Hz':'');
 }
 function libList(){
   const o=$('#cList');$('#cDet').innerHTML='';
@@ -697,7 +754,7 @@ function clipHtml(m){
   if(m.lat==null)h+='<p>No location was available, so there are no aircraft tags.</p>';
   else if(!(m.candidates||[]).length)h+='<p>No aircraft were reported near you during this clip.</p>';
   else{
-    h+='<p><b>Likely sources</b></p>'+m.candidates.map(c=>'<p>'+esc((c.type||'?')+' '+(c.flight||c.hex)+(c.reg?' '+c.reg:''))+'<br>closest '+(c.minR/1000).toFixed(1)+' km, '+c.atS+' s into the clip, '+c.el+'° above horizon'+(typeof c.altFt==='number'?', '+c.altFt.toLocaleString()+' ft':'')+(c.aimErr!=null?', about '+c.aimErr+'° off from where you pointed':'')+'</p>').join('');
+    h+='<p><b>Likely sources</b></p>'+m.candidates.map(c=>'<p>'+esc((c.type||'?')+' '+(c.flight||c.hex)+(c.reg?' '+c.reg:''))+'<br>closest '+fmtD(c.minR)+', '+c.atS+' s into the clip, '+c.el+'° above horizon'+(typeof c.altFt==='number'?', '+fmtAlt(c.altFt):'')+(c.aimErr!=null?', about '+c.aimErr+'° off from where you pointed':'')+'</p>').join('');
     h+='<p class="mut">Estimated from aircraft snapshots about every 15 seconds, allowing for sound travel time and assuming straight flight in between. Treat the top match as likely, not certain.</p>';
   }
   h+=wxClipHtml(m);
@@ -770,7 +827,6 @@ function ridParse(hex){
   return u;
 }
 function llDelta(a,b,c,d){const p=Math.PI/180,x=(d-b)*p*Math.cos((a+c)/2*p),y=(c-a)*p;return{m:Math.hypot(x,y)*6371000,br:(Math.atan2(x,y)/p+360)%360}}
-const fmtD=m=>m<1000?Math.round(m)+' m':(m/1000).toFixed(1)+' km';
 $('#idGo').onclick=()=>{
   if(!window.Android||!Android.startRid){$('#idSt').textContent='Remote ID scanning works in the Android app only.';return}
   if(ridOn){ridUserStop=true;Android.stopRid();return}
@@ -894,7 +950,7 @@ function cbSummary(x){
   else if(!x.ov.all)out.air='No aircraft reported nearby.';
   else{
     const a=x.ov.near,alt=typeof a.altFt==='number'?a.altFt:null,p=[(a.distM/1000).toFixed(1)+' km '+cmp(a.bearing)];
-    if(alt!==null){p.push(alt.toLocaleString()+' ft');p.push(Math.round(Math.atan2(alt*.3048,a.distM)*180/Math.PI)+'° above the horizon')}
+    if(alt!==null){p.push(fmtAlt(alt));p.push(Math.round(Math.atan2(alt*.3048,a.distM)*180/Math.PI)+'° above the horizon')}
     else if(a.altFt==='ground')p.push('on ground');
     out.air=x.ov.all+' aircraft nearby. Nearest: '+(a.type||'?')+' '+(a.flight||a.hex)+', '+p.join(', ')+'. Updated '+Math.max(0,Math.round((x.now-x.ov.t)/1000))+' s ago.';
   }
@@ -984,12 +1040,14 @@ async function cbStart(){
   if(!cbOn||tok!==cbTok)return;
   await cbPingNow();
   if(!cbOn||tok!==cbTok)return;
-  cbPing=setInterval(cbTick,15000);
+  cbPing=setInterval(cbTick,SCAN_MS);
   if(!ridOn)Android.startRid();
+  try{if(KEEP_ON&&Android.setKeepScreenOn)Android.setKeepScreenOn(true)}catch(e){}
   setCbUi(true);cbRender();say('Scan started. Listening, checking aircraft and scanning for drone signals.');
 }
 function cbStop(){
   cbTok++;cbOn=false;
+  try{if(Android.setKeepScreenOn)Android.setKeepScreenOn(false)}catch(e){}
   clearInterval(cbPing);cbPing=null;
   cbMicStop();cbOvDone();
   if(ridOn){ridUserStop=true;Android.stopRid()}
@@ -1019,7 +1077,7 @@ let SOUND_C=343;   // m/s, set from the air temperature when weather is known; a
 const ADSB_LAG=1;
 const MAX_AGE=45;    // seconds: older reports are not extrapolated further (aircraft turn)
 let rdFix=null;      // last location fix reported by the phone    // seconds: allowance for the ADS-B data service itself
-const BEAM=15;
+
 const TYPE_NAMES={C152:'Cessna 152',C172:'Cessna 172 Skyhawk',C182:'Cessna 182',C206:'Cessna 206',C208:'Cessna Caravan',C210:'Cessna 210',C25A:'Cessna CitationJet',C510:'Cessna Citation Mustang',C525:'Cessna CitationJet',C560:'Cessna Citation V',C680:'Cessna Citation Sovereign',PA28:'Piper Cherokee/Warrior',PA32:'Piper Cherokee Six',PA34:'Piper Seneca',PA44:'Piper Seminole',PA46:'Piper Malibu',SR20:'Cirrus SR20',SR22:'Cirrus SR22',BE35:'Beech Bonanza',BE36:'Beech Bonanza A36',BE58:'Beech Baron',BE20:'Beech King Air 200',BE9L:'Beech King Air 90',DA40:'Diamond DA40',DA42:'Diamond DA42',M20P:'Mooney M20',R22:'Robinson R22',R44:'Robinson R44',R66:'Robinson R66',B06:'Bell 206',B407:'Bell 407',EC35:'Airbus EC135',H60:'Black Hawk',S76:'Sikorsky S-76',PC12:'Pilatus PC-12',TBM9:'Daher TBM 900',B737:'Boeing 737',B738:'Boeing 737-800',B739:'Boeing 737-900',B38M:'Boeing 737 MAX 8',B752:'Boeing 757-200',B763:'Boeing 767-300',B772:'Boeing 777-200',B77W:'Boeing 777-300ER',B788:'Boeing 787-8',B789:'Boeing 787-9',A319:'Airbus A319',A320:'Airbus A320',A321:'Airbus A321',A20N:'Airbus A320neo',A21N:'Airbus A321neo',A332:'Airbus A330-200',A333:'Airbus A330-300',A359:'Airbus A350-900',E170:'Embraer 170',E75L:'Embraer 175',E75S:'Embraer 175',CRJ2:'Bombardier CRJ-200',CRJ7:'Bombardier CRJ-700',CRJ9:'Bombardier CRJ-900',DH8D:'Dash 8 Q400',AT76:'ATR 72'};
 const typeName=c=>TYPE_NAMES[c]||c||'Unknown type';
 // Where an aircraft is now, and where the sound you hear now came from.
@@ -1081,8 +1139,8 @@ function rdCardUpdate(o,hd){
   t('rcN',a.flight||a.reg||a.hex);t('rcT',typeName(a.type)+(a.reg&&a.flight&&a.reg!==a.flight?' · '+a.reg:''));
   const vs=a.vsFpm;t('rcV',typeof vs==='number'&&Math.abs(vs)>=100?(vs>0?'Climbing ':'Descending ')+Math.abs(Math.round(vs/50)*50).toLocaleString()+' ft/min':'');
   t('rcD',fmtD(s.dist));
-  t('rcA',typeof a.altFt==='number'?a.altFt.toLocaleString()+' ft':a.altFt==='ground'?'on ground':'—');
-  t('rcG',a.gs>0?Math.round(a.gs)+' kt':'—');
+  t('rcA',typeof a.altFt==='number'?fmtAlt(a.altFt):a.altFt==='ground'?'on ground':'—');
+  t('rcG',a.gs>0?fmtSpd(a.gs):'—');
   t('rcL',Math.round(s.nowBr)+'° '+cmp(s.nowBr)+', '+Math.round(s.nowEl)+'° up');
   t('rcLt',rdTurn(s.nowBr,s.nowEl,hd));
   t('rcSl','SOUND FROM (where it was '+Math.round(s.tau)+' s ago)');
@@ -1109,7 +1167,7 @@ function rdDraw(){
   g.strokeStyle=bd;g.lineWidth=2;g.fillStyle=mut;
   for(let k=1;k<=3;k++){
     g.beginPath();g.arc(C,C,R*k/3,0,Math.PI*2);g.stroke();
-    const nm=(+$('#oRad').value*k/3),lab=(Math.round(nm*10)/10)+' nm';
+    const nm=(+$('#oRad').value*k/3),lab=fmtRad(nm);
     g.textAlign='left';g.font='600 20px system-ui,sans-serif';g.fillText(lab,C+6,C-R*k/3+14);
   }
   g.beginPath();g.moveTo(C-R,C);g.lineTo(C+R,C);g.moveTo(C,C-R);g.lineTo(C,C+R);g.stroke();
@@ -1178,9 +1236,9 @@ function rdDraw(){
   }
   $('#rdCap').textContent=cap.join('; ')+'.';
   {const near=all.slice(0,5).map(o=>name(o)+', '+fmtD(o.s.dist)+' '+cmp(o.s.nowBr)).join('; ');
-   cv.setAttribute('aria-label','Radar, range '+$('#oRad').value+' nautical miles. '+(rdT?(all.length?all.length+(all.length===1?' aircraft':' aircraft')+' in range. Nearest: '+near+'.':'No aircraft in range.'):'No scan yet.')+' '+cap.join('; ')+'. The aircraft list below has the same contacts with details.')}
+   cv.setAttribute('aria-label','Radar, '+radSpoken(+$('#oRad').value)+' radius. '+(rdT?(all.length?all.length+(all.length===1?' aircraft':' aircraft')+' in range. Nearest: '+near+'.':'No aircraft in range.'):'No scan yet.')+' '+cap.join('; ')+'. The aircraft list below has the same contacts with details.')}
   $('#rdMode').textContent=up?'Radar: pointing up (tap for north up)':'Radar: north up'+(rdUp&&hd===null?' (no compass yet)':' (tap for pointing up)');
-  rdDebug(hd);
+  if(DIAG)rdDebug(hd);
   if(rdSel)rdCardUpdate(selO?selO.o:null,hd);
 }
 // A plain-language readout of where the numbers come from, to help find out why a marker is off.
@@ -1259,17 +1317,19 @@ function wxHints(w){
 }
 function wxDraw(){
   const e=$('#wxCard');if(!e)return;
+  const dw=$('#dWx');if(dw)dw.hidden=!wx;
   if(!wx){e.hidden=true;e.innerHTML='';return}
   const w=wx,n=(v,f)=>typeof v==='number'?f(v):'—',ms=v=>Math.round(v);
   const t=(l,v,sm)=>'<div><small>'+esc(l)+'</small><strong>'+esc(v)+'</strong>'+(sm?'<small>'+esc(sm)+'</small>':'')+'</div>';
   const when=new Date(w.t||Date.now()).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
   e.hidden=false;
+  {const ws=$('#wxS');if(ws)ws.textContent=(UNITS==='us'?Math.round(w.tempC*9/5+32)+' °F':Math.round(w.tempC)+' °C')+(typeof w.windMs==='number'?', wind '+(UNITS==='us'?Math.round(w.windMs*2.237)+' mph':UNITS==='si'?Math.round(w.windMs*3.6)+' km/h':Math.round(w.windMs*1.944)+' kt'):'')}
   e.innerHTML='<div class="rch"><b>Weather here</b><span>checked '+esc(when)+'</span></div>'+
    '<div class="rcn">'+
-    t('Temperature',Math.round(w.tempC)+' °C',Math.round(w.tempC*9/5+32)+' °F')+
-    t('Wind',n(w.windMs,v=>Math.round(v*2.237)+' mph'),n(w.windMs,v=>ms(v)+' m/s'+(typeof w.windDir==='number'?' from '+cmp(w.windDir):'')+(w.gustMs>v+1?', gusts '+ms(w.gustMs):'')))+
+    (UNITS==='us'?t('Temperature',Math.round(w.tempC*9/5+32)+' °F',Math.round(w.tempC)+' °C'):t('Temperature',Math.round(w.tempC)+' °C',Math.round(w.tempC*9/5+32)+' °F'))+
+    t('Wind',n(w.windMs,v=>UNITS==='us'?Math.round(v*2.237)+' mph':UNITS==='si'?Math.round(v*3.6)+' km/h':Math.round(v*1.944)+' kt'),n(w.windMs,v=>ms(v)+' m/s'+(typeof w.windDir==='number'?' from '+cmp(w.windDir):'')+(w.gustMs>v+1?', gusts '+ms(w.gustMs):'')))+
     t('Cloud',n(w.cloudPct,v=>Math.round(v)+'%'))+
-    t('Visibility',n(w.visM,v=>v>=10000?'10+ km':(v/1000).toFixed(1)+' km'))+
+    t('Visibility',n(w.visM,v=>UNITS==='us'?(v>=10000?'6+ mi':(v/1609.344).toFixed(1)+' mi'):(v>=10000?'10+ km':(v/1000).toFixed(1)+' km')))+
     t('Rain',n(w.precipMm,v=>v>0?v.toFixed(1)+' mm':'none'))+
     t('Pressure',n(w.pressHpa,v=>Math.round(v)+' hPa'))+
    '</div>'+
@@ -1281,9 +1341,9 @@ function wxDraw(){
 const GUIDE=[
  {t:'Welcome to Sky Ear',b:['Sky Ear helps you learn what drones and aircraft sound like, and match a sound you hear to what is overhead.','It is free and open source. It is experimental: not a drone detector and not a safety system.']},
  {t:'Permissions',b:['When you first start a scan, Android asks for three things: the microphone (to listen and record), location (to find aircraft near you) and nearby devices (to hear drones that broadcast Remote ID).','Audio is analyzed on your phone. If you decline one, only the feature that needs it stops working.']},
- {t:'Start a scan',b:['On the Field tab, tap Start scan. It listens through the microphone, checks aircraft data every 15 seconds and scans for Remote ID signals.','Go outside and wait a moment for GPS. Aircraft and weather lookups send your approximate location to api.adsb.lol and open-meteo.com.']},
+ {t:'Start a scan',b:['On the Field tab, tap Start scan. It listens through the microphone, checks aircraft data regularly (you can change how often in Settings) and scans for Remote ID signals.','Go outside and wait a moment for GPS. Aircraft and weather lookups send your approximate location to api.adsb.lol and open-meteo.com.']},
  {t:'Read the radar',b:['The radar shows aircraft around you. Hold the back of the phone toward the sky: the shaded wedge is where you are pointing.','Open an aircraft from the list to see where it is now and where its sound is coming from. Sound arrives seconds late, so the two differ. With a screen reader, use the aircraft list under the radar; the radar itself is read as a summary.']},
- {t:'Record and learn',b:['Record a clip to tag it with nearby aircraft and the weather, then find it in the Library.','Synth and Quiz teach drone sounds, and Listen measures a sound. Tap Help at the top any time to see this guide again.']}
+ {t:'Record and learn',b:['Record a clip to tag it with nearby aircraft and the weather, then find it in the Library.','Synth and Quiz teach drone sounds, and Listen measures a sound. Settings (top right) changes units, theme, text size and more. Tap Help to see this guide again.']}
 ];
 let gi=0,gPrev=null;
 function gdShow(){
@@ -1317,6 +1377,43 @@ $('#gd').addEventListener('keydown',ev=>{
   else if(!ev.shiftKey&&document.activeElement===z){ev.preventDefault();a.focus()}
 });
 if(prefGet('guideDone')!=='1')guideOpen();
+
+// ---- Settings ----
+function applyTheme(){
+  const t=prefGet('theme')||'auto',r=document.documentElement;
+  try{if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t)}catch(e){}
+  llUpdate();
+}
+function applyTextZoom(){try{if(window.Android&&Android.setTextZoom)Android.setTextZoom(+(prefGet('textZoom')||100))}catch(e){}}
+function applyDiag(){const e=$('#rdDbg');if(e)e.hidden=!DIAG}
+function settingsInit(){
+  const sel=(id,key,def,on)=>{
+    const e=$('#'+id);if(!e)return;
+    e.value=prefGet(key)||def;
+    e.addEventListener('change',()=>{prefSet(key,e.value);on&&on(e.value)});
+  };
+  const chk=(id,key,def,on)=>{
+    const e=$('#'+id);if(!e)return;
+    const v=prefGet(key);e.checked=v===''?def:v==='1';
+    e.addEventListener('change',()=>{prefSet(key,e.checked?'1':'0');on&&on(e.checked)});
+  };
+  sel('sUnits','units','av',v=>{UNITS=v;radText();wxDraw();ovRender();rdDraw();say('Units changed')});
+  sel('sTheme','theme','auto',()=>{applyTheme();rdDraw()});
+  sel('sText','textZoom','100',()=>applyTextZoom());
+  chk('sDiag','diag',false,v=>{DIAG=v;applyDiag();rdDraw()});
+  sel('sScan','scanS','15',v=>{SCAN_MS=+v*1000;if(cbOn&&cbPing){clearInterval(cbPing);cbPing=setInterval(cbTick,SCAN_MS)}});
+  chk('sKeep','keepOn',false,v=>{KEEP_ON=v;try{if(cbOn&&Android.setKeepScreenOn)Android.setKeepScreenOn(v)}catch(e){}});
+  chk('sWx','wxOn',true,v=>{WX_ON=v;if(!v)wxSet(null)});
+  sel('sBeam','beam','15',v=>{BEAM=+v;rdDraw()});
+  chk('sSpeak','speak',true,v=>{SPEAK=v});
+  $('#sGuide').onclick=()=>{tab(lastTab);guideOpen()};
+  $('#sReset').onclick=()=>{
+    ['units','theme','textZoom','diag','scanS','keepOn','wxOn','beam','speak','ptMode','radNm','rdUp'].forEach(k=>prefSet(k,''));
+    $('#sMsg').textContent='Settings reset. Reloading.';
+    setTimeout(()=>{try{location.reload()}catch(e){}},400);
+  };
+}
+applyTheme();applyTextZoom();applyDiag();settingsInit();
 </script>
 </body>
 </html>

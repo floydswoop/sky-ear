@@ -25,7 +25,7 @@ Sky Ear is a small Android app that shows a web page (the whole interface) and a
 
 ## 3. Copy in the Sky Ear files
 
-This repository's `app/src/main` folder mirrors the one in your project. Copy these four files:
+This repository's `app/src/main` folder mirrors the one in your project. Copy these files. Create the folders that don't exist yet (`layout`, `xml`, `drawable`):
 
 | From this repository | To your project |
 |---|---|
@@ -33,11 +33,15 @@ This repository's `app/src/main` folder mirrors the one in your project. Copy th
 | `app/src/main/res/values/strings.xml` | `app/src/main/res/values/strings.xml` (replace) |
 | `app/src/main/assets/index.html` | `app/src/main/assets/index.html` (see below) |
 | `app/src/main/java/com/example/skyear/MainActivity.kt` | `app/src/main/java/com/example/skyear/MainActivity.kt` (replace) |
+| `app/src/main/java/com/example/skyear/ScanWidget.kt` | `app/src/main/java/com/example/skyear/ScanWidget.kt` (new, the home-screen widget) |
+| `app/src/main/res/layout/widget_scan.xml` | `app/src/main/res/layout/widget_scan.xml` (new) |
+| `app/src/main/res/xml/scan_widget_info.xml` | `app/src/main/res/xml/scan_widget_info.xml` (new) |
+| `app/src/main/res/drawable/widget_bg.xml` and `widget_btn.xml` | `app/src/main/res/drawable/` (new) |
 
 Tips:
 - **Replace a file completely:** open it in Android Studio, press Ctrl+A, Delete, then paste the new contents. Don't merge old and new text.
 - **The `assets` folder doesn't exist yet.** Switch the left panel to **Android** view, right-click `app`, choose **New > Folder > Assets Folder**, accept the defaults, then put `index.html` inside. It must end up at `app/src/main/assets/index.html`.
-- **If your package name differs** from `com.example.skyear`, change line 1 of `MainActivity.kt` to match your project's package. The manifest assumes your theme is named `Theme.SkyEar`; if Android Studio marks it red, use the theme name your project already had.
+- **If your package name differs** from `com.example.skyear`, change line 1 of `MainActivity.kt` and `ScanWidget.kt` to match your project's package. The manifest assumes your theme is named `Theme.SkyEar`; if Android Studio marks it red, use the theme name your project already had.
 - **Permission lines belong inside `<manifest ...>` but outside any `<` `>` tag.** The most common mistake is pasting a `<uses-permission ... />` line in the middle of the opening tag.
 
 ## 4. Build and run
@@ -46,7 +50,7 @@ Tips:
 2. Press the green **Run** button.
 3. The first start asks for permissions as you use each feature: microphone, location, and nearby devices.
 
-To check everything works: open the **Synth** tab and tap Start (use headphones), then try the **Field** tab's "What's overhead" button.
+To check everything works: open the **Synth** tab and tap Start (use headphones), then try the **Field** tab's **Start scan** button. To try the widget, long-press the home screen, choose Widgets and add Sky Ear.
 
 ## Updating
 

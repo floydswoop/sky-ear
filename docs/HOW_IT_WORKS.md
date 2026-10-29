@@ -135,3 +135,23 @@ The Android app asks Open-Meteo for current conditions at your location (rounded
 - The radar and spectrograms are pictures, so each has a text description. The radar's description lists the nearest aircraft with distance and direction and is updated about once a second.
 - A polite live region announces scan start and stop, the nearest aircraft when it changes, drone signals when the count changes, and recording events. Repeats of the same message are suppressed so a 15-second scan does not read the same sentence again.
 - The first-run guide is a modal dialog: focus moves into it, Tab stays inside, Escape closes it, and focus returns to where it was. The page behind it is inert while it is open. The Help button reopens it.
+
+## Layout and settings
+
+The Field tab is built around the scan button, the radar and the aircraft list. Weather, Remote ID scanning and recording are collapsible sections below them. The Settings page (top right) holds the options below; each is saved on the phone and **Reset all settings** clears them.
+
+| Option | What it does |
+| --- | --- |
+| Units | Aviation (km, feet, knots, nautical miles), Metric (km, meters, km/h) or US (miles, feet, mph). Display only; the radar radius is still measured in nautical miles internally. |
+| Theme | Match the phone, Light, or Amber low-light. |
+| Text size | Normal, Large or Largest, using Android's own text scaling for the page. |
+| Position diagnostics | Shows the location, compass and data-age readout under the radar (off by default). |
+| Check aircraft every | 10, 15, 30 or 60 seconds. |
+| Keep the screen on | Stops the screen sleeping during a scan. |
+| Get the weather | Turns the Open-Meteo request off; the speed of sound then falls back to 343 m/s. |
+| Aim with, Beam width | Which edge of the phone points, and how wide the radar's "in beam" wedge is (10, 15 or 25 degrees). |
+| Announcements | Turns the screen reader live announcements on or off. |
+
+## Home-screen widget
+
+Long-press the home screen, choose Widgets, and add **Sky Ear**. Its **Start scan** button opens the app (or brings it forward) and starts a scan, and the name opens the app normally. The button sends the app an intent extra; the page runs `widgetStart()` once it has loaded, so it also works from a cold start. It does nothing while the first-run guide is open. Android still asks for microphone and location permission as usual the first time.
