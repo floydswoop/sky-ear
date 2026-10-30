@@ -149,6 +149,23 @@ input[type=range]{grid-column:1/3;width:100%;accent-color:var(--ac);height:28px}
 <p class="mut">An empty radar does not mean an empty sky: only aircraft that send ADS-B and are picked up by a volunteer receiver are listed.</p>
 <p class="mut">Only drones that broadcast Remote ID appear, within a few hundred meters. Silent or non-compliant drones are invisible to this app.</p>
 <p class="mut">Sound matches are estimates from generated sounds that have not been checked against real drones. SkyEar is a learning tool, not a detector or safety system.</p>
+<h3 class="grp">Learn</h3>
+<details class="sec" id="dMath"><summary><h2>How the math works</h2></summary><div class="in">
+<p class="mut">Shorthand for the main equations. All are estimates built on simple assumptions.</p>
+<p><b>Blade-pass tone.</b> <code>f = blades &times; RPM / 60</code>. Each blade passing makes one pulse, so a 2-blade prop at 6,000 RPM makes 200 Hz.</p>
+<p><b>Harmonics.</b> Overtones sit at <code>k &times; f</code>, each quieter than the last. Their spacing and fade are what make one drone sound different from another.</p>
+<p><b>Beating.</b> Two motors at slightly different speeds wobble at <code>|f1 &minus; f2|</code> times per second.</p>
+<p><b>Distance.</b> Level falls as <code>10 / r</code> (about 6 dB per doubling), and far sounds are duller because air absorbs high pitches.</p>
+<p><b>Doppler.</b> <code>f&prime; = f &times; c / (c + v)</code>, where <code>v</code> is the speed away from you. Approaching sounds higher, leaving sounds lower.</p>
+<p><b>Speed of sound.</b> <code>c = 331.3 &times; &radic;(1 + T / 273.15)</code> m/s, with <code>T</code> in &deg;C. About 343 m/s at 20&deg;C.</p>
+<p><b>Sound delay.</b> <code>&tau; = d / c</code>. The sound you hear left the aircraft &tau; seconds ago, about 3 seconds per kilometer. The aircraft moved <code>speed &times; &tau;</code> meanwhile, so the app repeats the sum until &tau; settles.</p>
+<p><b>Slant distance.</b> <code>d = &radic;(ground&sup2; + height&sup2;)</code>. Angle above the horizon is <code>atan2(height, ground)</code>.</p>
+<p><b>Old reports.</b> Position now = reported position + <code>speed &times; age</code> along the track (knots &times; 0.51444 = m/s), capped at 45 seconds.</p>
+<p><b>Pointing.</b> Bearing is <code>atan2(east, north)</code> plus magnetic declination. Tilt is <code>asin(up)</code>.</p>
+<p><b>Pitch.</b> The microphone signal is split by an 8192-point FFT. Pitch differences are in cents: <code>1200 &times; log2(f1 / f2)</code>, and 100 cents is one semitone. A harmonic counts if it stands 12 dB (about 4 times) above the noise.</p>
+<p><b>Quiz score.</b> <code>d&prime; = z(hit rate) &minus; z(false-alarm rate)</code>. Near 0 is guessing; above 2 is strong. It tells real skill from answering &ldquo;drone&rdquo; every time.</p>
+<p class="mut">Left out: wind, reflections, humidity, turning aircraft and compass error near metal. The full list with notes is in docs/MATH.md in the project on GitHub.</p>
+</div></details>
 <h3 class="grp">Help</h3>
 <div class="stack"><button id="sGuide" type="button">Show the first-run guide</button><button id="sReset" type="button">Reset all settings</button></div>
 <p class="cap" id="sMsg" role="status"></p>

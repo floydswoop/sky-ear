@@ -116,10 +116,10 @@ Under the search radius slider, a radar plots the aircraft from the latest ADS-B
 
 Tap an aircraft on the radar (or a row in the list) to open a detail card. Two delays are allowed for:
 
-- **ADS-B age.** Each aircraft's position is moved along its reported track and ground speed for its total age: the `seen_pos` the data service reports (how old the position was when sent), plus the time since the reply arrived, plus 1 s for the service itself. Reports are capped at 120 s of extrapolation.
+- **ADS-B age.** Each aircraft's position is moved along its reported track and ground speed for its total age: the `seen_pos` the data service reports (how old the position was when sent), plus the time since the reply arrived, plus 1 s for the service itself. Extrapolation is capped at 45 s, since aircraft turn.
 - **Sound delay.** The sound you hear now left the aircraft `tau` seconds ago, where `tau` = straight-line distance (ground distance and height) divided by the speed of sound. That distance depends on where the aircraft was, so the app solves it by iteration. The card shows *Look at* (where the aircraft is now) and *Sound from* (where it was `tau` seconds ago), each with how far to turn and tilt the phone. The beam highlight on the radar uses the sound position, because that is where you are listening toward.
 
-The speed of sound is fixed at 343 m/s (about 20 C) and shared with the recording matcher. Flight is assumed straight and steady, so a turning aircraft will drift from the estimate, and a 1 to 2 s timing error is roughly 50 to 100 m for a slow plane. The maths is in `rdSolve` and is covered by tests.
+The speed of sound is 343 m/s (about 20 C) unless weather is on, when it comes from the air temperature (see Weather below); the recording matcher shares it. Flight is assumed straight and steady, so a turning aircraft will drift from the estimate, and a 1 to 2 s timing error is roughly 50 to 100 m for a slow plane. The maths is in `rdSolve` and is covered by tests.
 
 ## Weather (Field tab)
 
@@ -155,3 +155,5 @@ The Field tab is built around the scan button, the radar and the aircraft list. 
 ## Home-screen widget
 
 Long-press the home screen, choose Widgets, and add **SkyEar**. Its **Start scan** button opens the app (or brings it forward) and starts a scan, and the name opens the app normally. The button sends the app an intent extra; the page runs `widgetStart()` once it has loaded, so it also works from a cold start. It does nothing while the first-run guide is open. Android still asks for microphone and location permission as usual the first time.
+
+The equations in one place, with plain-language notes, are in [MATH.md](MATH.md).
