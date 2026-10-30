@@ -19,6 +19,15 @@ SkyEar started as a drone-safety idea: help people recognize the sound of differ
 | **Listen** | Analyze the microphone or a saved recording: spectrogram, pitch, harmonics, closest presets. |
 | **Library** | Your clips with analysis, likely source aircraft, pointing data, labels and notes. Export to Downloads. |
 
+## What it cannot tell you
+
+- **An empty radar is not an empty sky.** Aircraft appear only if they send ADS-B and a volunteer receiver near you reports them to adsb.lol. Aircraft without a transponder, some military flights and anything outside receiver coverage are missing.
+- **Silence on the drone scan is not proof there is no drone.** Only drones that broadcast Remote ID show up, within a few hundred meters. Many drones do not broadcast it, and SkyEar cannot detect those.
+- **Sound matches are estimates.** Drone sounds are generated from adjustable settings, not played from recordings, and have not yet been compared with real drones.
+- **It is not a safety system.** If you feel unsafe, contact local authorities or emergency services.
+
+The same points are in the app's first-run guide and Settings page.
+
 ## Try it
 
 1. On your Android phone, download the APK from the **[latest release](https://github.com/floydswoop/sky-ear/releases)** (SkyEar v0.2).

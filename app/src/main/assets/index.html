@@ -145,6 +145,10 @@ input[type=range]{grid-column:1/3;width:100%;accent-color:var(--ac);height:28px}
 <label><span>Beam width</span><select id="sBeam" style="grid-column:1/3"><option value="10">Narrow, 10 degrees</option><option value="15">Normal, 15 degrees</option><option value="25">Wide, 25 degrees</option></select></label>
 <h3 class="grp">Screen reader</h3>
 <label class="chk"><input type="checkbox" id="sSpeak"><span>Announce scan results and events</span></label>
+<h3 class="grp">What SkyEar cannot tell you</h3>
+<p class="mut">An empty radar does not mean an empty sky: only aircraft that send ADS-B and are picked up by a volunteer receiver are listed.</p>
+<p class="mut">Only drones that broadcast Remote ID appear, within a few hundred meters. Silent or non-compliant drones are invisible to this app.</p>
+<p class="mut">Sound matches are estimates from generated sounds that have not been checked against real drones. SkyEar is a learning tool, not a detector or safety system.</p>
 <h3 class="grp">Help</h3>
 <div class="stack"><button id="sGuide" type="button">Show the first-run guide</button><button id="sReset" type="button">Reset all settings</button></div>
 <p class="cap" id="sMsg" role="status"></p>
@@ -632,7 +636,7 @@ function onOverhead(js){
   const r=JSON.parse(js),o=$('#oOut');
   const ac=r.ac.slice().sort((a,b)=>a.distM-b.distM).slice(0,12);
   ovErr=null;ovLast={t:Date.now(),all:r.ac.length,near:ac[0]||null};rdFix=r.fix||null;if(r.wx&&WX_ON)wxSet(r.wx);rdSet(r.ac);$('#airS').textContent=r.ac.length+' aircraft';cbOvDone();cbRender();
-  if(!ac.length){o.textContent='No aircraft reported within that radius right now.';sayChange('air','none','No aircraft reported nearby.');return}
+  if(!ac.length){o.textContent='No aircraft reported within that radius right now. That does not mean the sky is empty: aircraft without ADS-B, or outside the range of a volunteer receiver, are not listed.';sayChange('air','none','No aircraft reported nearby. Not every aircraft is listed.');return}
   {const n=ac[0];sayChange('air',r.ac.length+':'+n.hex,r.ac.length+(r.ac.length===1?' aircraft':' aircraft')+' reported. Nearest: '+(n.flight||n.type||n.hex)+', '+(n.distM/1000).toFixed(1)+' kilometers '+cmp(n.bearing)+'.')}
   ovAc=ac;ovTotal=r.ac.length;ovRender();
 }
@@ -947,7 +951,7 @@ function cbSummary(x){
 
   if(x.ovErr)out.air=x.ovErr;
   else if(!x.ov)out.air='Checking for aircraft...';
-  else if(!x.ov.all)out.air='No aircraft reported nearby.';
+  else if(!x.ov.all)out.air='No aircraft reported nearby. Not every aircraft is listed.';
   else{
     const a=x.ov.near,alt=typeof a.altFt==='number'?a.altFt:null,p=[(a.distM/1000).toFixed(1)+' km '+cmp(a.bearing)];
     if(alt!==null){p.push(fmtAlt(alt));p.push(Math.round(Math.atan2(alt*.3048,a.distM)*180/Math.PI)+'° above the horizon')}
@@ -956,7 +960,7 @@ function cbSummary(x){
   }
 
   if(!x.ridOn)out.drone=x.ridErr?'Drone scan could not start: '+x.ridErr:'Drone scan is off.';
-  else if(!x.rid.length)out.drone='None heard yet. '+(x.ridInfo?x.ridInfo+' ':'')+'Only drones that broadcast Remote ID can be heard, within a few hundred meters.';
+  else if(!x.rid.length)out.drone='None heard yet. '+(x.ridInfo?x.ridInfo+' ':'')+'Only drones that broadcast Remote ID can be heard, within a few hundred meters, so silence does not mean there is no drone.';
   else{
     const L=x.rid.map(u=>{
       const d=u.lat!=null&&x.phone?llDelta(x.phone.lat,x.phone.lon,u.lat,u.lon):null;
@@ -1223,7 +1227,7 @@ function rdDraw(){
   g.fillStyle=fg;g.beginPath();g.arc(C,C,7,0,Math.PI*2);g.fill();
   g.textAlign='center';g.fillStyle=mut;g.font='600 24px system-ui,sans-serif';
   if(!rdT)g.fillText('Tap Start scan to plot aircraft',C,C+R*.5);
-  else if(!list.length)g.fillText('No aircraft in range',C,C+R*.5);
+  else if(!list.length)g.fillText('None reported in range',C,C+R*.5);
   let cap=[];
   if(hd!==null){
     const el=rdPhoneEl();
@@ -1236,7 +1240,7 @@ function rdDraw(){
   }
   $('#rdCap').textContent=cap.join('; ')+'.';
   {const near=all.slice(0,5).map(o=>name(o)+', '+fmtD(o.s.dist)+' '+cmp(o.s.nowBr)).join('; ');
-   cv.setAttribute('aria-label','Radar, '+radSpoken(+$('#oRad').value)+' radius. '+(rdT?(all.length?all.length+(all.length===1?' aircraft':' aircraft')+' in range. Nearest: '+near+'.':'No aircraft in range.'):'No scan yet.')+' '+cap.join('; ')+'. The aircraft list below has the same contacts with details.')}
+   cv.setAttribute('aria-label','Radar, '+radSpoken(+$('#oRad').value)+' radius. '+(rdT?(all.length?all.length+(all.length===1?' aircraft':' aircraft')+' in range. Nearest: '+near+'.':'No aircraft reported in range. Not every aircraft is listed.'):'No scan yet.')+' '+cap.join('; ')+'. The aircraft list below has the same contacts with details.')}
   $('#rdMode').textContent=up?'Radar: pointing up (tap for north up)':'Radar: north up'+(rdUp&&hd===null?' (no compass yet)':' (tap for pointing up)');
   if(DIAG)rdDebug(hd);
   if(rdSel)rdCardUpdate(selO?selO.o:null,hd);
@@ -1343,6 +1347,7 @@ const GUIDE=[
  {t:'Permissions',b:['When you first start a scan, Android asks for three things: the microphone (to listen and record), location (to find aircraft near you) and nearby devices (to hear drones that broadcast Remote ID).','Audio is analyzed on your phone. If you decline one, only the feature that needs it stops working.']},
  {t:'Start a scan',b:['On the Field tab, tap Start scan. It listens through the microphone, checks aircraft data regularly (you can change how often in Settings) and scans for Remote ID signals.','Go outside and wait a moment for GPS. Aircraft and weather lookups send your approximate location to api.adsb.lol and open-meteo.com.']},
  {t:'Read the radar',b:['The radar shows aircraft around you. Hold the back of the phone toward the sky: the shaded wedge is where you are pointing.','Open an aircraft from the list to see where it is now and where its sound is coming from. Sound arrives seconds late, so the two differ. With a screen reader, use the aircraft list under the radar; the radar itself is read as a summary.']},
+ {t:'What SkyEar cannot tell you',b:['An empty radar does not mean an empty sky. Aircraft appear only if they send ADS-B and a volunteer receiver near you passes it on. Aircraft without a transponder, and some military and other flights, are missing.','Drones appear only if they broadcast Remote ID, and only within a few hundred meters. Many drones do not, and SkyEar cannot detect those.','Drone sounds in the Synth and Quiz are generated from settings, not played from recordings, and have not been checked against real drones. A match is a guess. If you feel unsafe, contact local authorities or emergency services.']},
  {t:'Record and learn',b:['Record a clip to tag it with nearby aircraft and the weather, then find it in the Library.','Synth and Quiz teach drone sounds, and Listen measures a sound. Settings (top right) changes units, theme, text size and more. Tap Help to see this guide again.']}
 ];
 let gi=0,gPrev=null;

@@ -63,6 +63,8 @@ The Remote ID test messages were generated with the reference Open Drone ID libr
 
 ## Known limitations
 
+- An empty radar does not mean an empty sky: ADS-B lists only aircraft with a transponder that a volunteer receiver picks up. The app says so in the first-run guide, in Settings and when no aircraft are found.
+- Drone sounds are synthesized from parameters and have not been compared with real recordings, so a sound match is an estimate.
 - Remote ID shows only drones that broadcast it, and only within roughly a few hundred meters. Wi-Fi Beacon detection is slow because Android limits Wi-Fi scans, and Wi-Fi NAN broadcasts are not supported. Long-range Bluetooth 5 depends on the phone.
 - Aircraft matching assumes straight flight between snapshots taken about 15 seconds apart. Treat the top match as likely, not certain.
 - The compass can be thrown off by metal and magnets. The app warns when the sensor reports low accuracy.

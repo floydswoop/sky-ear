@@ -141,7 +141,7 @@ test('sound line: quiet, no tone, tone, recording, microphone error', () => {
   assert.strictEqual(api.cbSummary({ ...idle, micErr: 'Microphone unavailable (NotAllowedError).' }).sound, 'Microphone unavailable (NotAllowedError).');
 });
 test('aircraft line: none, nearest aircraft, and error', () => {
-  assert.strictEqual(api.cbSummary({ ...idle, ov: { t: 100000, all: 0, near: null } }).air, 'No aircraft reported nearby.');
+  assert.strictEqual(api.cbSummary({ ...idle, ov: { t: 100000, all: 0, near: null } }).air, 'No aircraft reported nearby. Not every aircraft is listed.');
   const a = api.cbSummary({ ...idle, ov: { t: 95000, all: 3, near: { type: 'C172', flight: 'N123', hex: 'a1', altFt: 3281, distM: 2100, bearing: 45 } } }).air;
   assert.ok(/3 aircraft nearby. Nearest: C172 N123, 2.1 km NE, 3,281 ft, 25° above the horizon. Updated 5 s ago./.test(a), a);
   assert.ok(/on ground/.test(api.cbSummary({ ...idle, ov: { t: 100000, all: 1, near: { type: 'C172', hex: 'a1', altFt: 'ground', distM: 800, bearing: 200 } } }).air));
