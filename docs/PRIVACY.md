@@ -11,7 +11,7 @@ Deleting a clip in the Library removes both its files. Uninstalling the app remo
 
 ## What leaves your phone
 
-Only one thing: when you tap **What's overhead**, or while recording, the app asks the ADS-B service (`api.adsb.lol`) for aircraft near you. The request contains your **latitude and longitude** (as part of the web address) and a search radius. Like any web request, the service can also see your IP address. The app also asks the weather service Open-Meteo (`api.open-meteo.com`) for current conditions. That request contains your latitude and longitude **rounded to two decimals (about 1 km)**, and the service can see your IP address. Weather answers are reused for 10 minutes. Nothing else is sent to either service: no audio, no clips, no labels.
+When you tap **What's overhead**, or while recording, the app asks the ADS-B service (`api.adsb.lol`) for aircraft near you. The request contains your latitude and longitude **rounded to two decimals (about 1 km)**, as part of the web address, and a search radius. Distances and directions are worked out on the phone from your exact location, which is not sent. Like any web request, the service can also see your IP address. The app also asks the weather service Open-Meteo (`api.open-meteo.com`) for current conditions. That request contains your latitude and longitude **rounded to two decimals (about 1 km)**, and the service can see your IP address. Weather answers are reused for 10 minutes. Nothing else is sent to either service: no audio, no clips, no labels.
 
 If that is not acceptable, do not use the Overhead feature or recording with aircraft tags. Everything else works without the internet.
 

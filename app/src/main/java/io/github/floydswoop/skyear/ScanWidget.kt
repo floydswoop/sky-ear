@@ -1,4 +1,4 @@
-package com.example.skyear
+package io.github.floydswoop.skyear
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager

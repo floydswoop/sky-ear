@@ -1,4 +1,4 @@
-package com.example.skyear
+package io.github.floydswoop.skyear
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -341,7 +341,14 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val html = assets.open("index.html").bufferedReader().use { it.readText() }
+        // A build without the page asset should say so, not crash at start.
+        val html = try {
+            assets.open("index.html").bufferedReader().use { it.readText() }
+        } catch (e: java.io.IOException) {
+            "<html><body style=\"font-family:sans-serif;padding:24px\"><h2>SkyEar could not start</h2>" +
+                "<p>The page file (assets/index.html) is missing from this build. " +
+                "Rebuild the app from the project folder, or install a release from GitHub.</p></body></html>"
+        }
         web.loadDataWithBaseURL("https://skyear.local/", html, "text/html", "utf-8", null)
 
         val box = FrameLayout(this)
@@ -447,11 +454,15 @@ class MainActivity : ComponentActivity() {
 
     // Asks the ADS-B service for aircraft around a point. Blocking: call from a background thread.
     private fun queryAircraft(lat: Double, lon: Double, radiusNm: Int): JSONArray {
-        val conn = URL("https://api.adsb.lol/v2/lat/$lat/lon/$lon/dist/$radiusNm")
+        // Privacy: the service gets the location rounded to 2 decimals (about 1 km).
+        // Distances and bearings below still use the exact location, which stays on the phone.
+        val qLat = String.format(java.util.Locale.US, "%.2f", lat)
+        val qLon = String.format(java.util.Locale.US, "%.2f", lon)
+        val conn = URL("https://api.adsb.lol/v2/lat/$qLat/lon/$qLon/dist/$radiusNm")
             .openConnection() as HttpURLConnection
         conn.connectTimeout = 8000
         conn.readTimeout = 8000
-        conn.setRequestProperty("User-Agent", "SkyEar/0.1")
+        conn.setRequestProperty("User-Agent", "SkyEar/0.3")
         val body = try {
             conn.inputStream.bufferedReader().use { it.readText() }
         } finally {
@@ -477,6 +488,10 @@ class MainActivity : ComponentActivity() {
                 .put("lon", alon)
                 .put("distM", res[0].toDouble())
                 .put("bearing", ((res[1] + 360f) % 360f).toDouble())
+            // GPS (geometric) altitude uses the same reference as the phone's own GPS height,
+            // so the radar prefers it for angles. alt_baro stays the displayed altitude.
+            val geo = a.optDouble("alt_geom", Double.NaN)
+            if (!geo.isNaN()) o.put("altGeoFt", geo)
             if (a.has("track")) o.put("track", a.optDouble("track", 0.0))
             // How old the position already was when the service sent it, and climb/descent rate (ft/min)
             if (a.has("seen_pos")) o.put("seenPos", a.optDouble("seen_pos", 0.0))
@@ -507,7 +522,7 @@ class MainActivity : ComponentActivity() {
                 .openConnection() as HttpURLConnection
             conn.connectTimeout = 6000
             conn.readTimeout = 6000
-            conn.setRequestProperty("User-Agent", "SkyEar/0.2")
+            conn.setRequestProperty("User-Agent", "SkyEar/0.3")
             val body = try {
                 conn.inputStream.bufferedReader().use { it.readText() }
             } finally {

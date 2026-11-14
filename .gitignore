@@ -1,19 +1,11 @@
-# Android Studio / Gradle
-.gradle/
-build/
-local.properties
-.idea/
 *.iml
+.gradle
+.kotlin
+/local.properties
+/.idea
 .DS_Store
-captures/
-.externalNativeBuild/
-.cxx/
-
-# Signing keys: never commit these
-*.jks
-*.keystore
-keystore.properties
-
-# Exported recordings and location data
-*.wav
-clip_*.json
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx

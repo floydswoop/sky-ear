@@ -173,6 +173,13 @@ test('radar: sound delay for a stationary source is slant range / speed of sound
   assert(Math.abs(r.tau - 12.445) < 0.01, 'tau ' + r.tau);          // hypot(4200, 762) / 343
   assert(r.lagM === 0 && Math.abs(r.hBr - r.nowBr) < 1e-9);
 });
+test('radar uses GPS altitude when the phone height is known', () => {
+  const a = { distM: 1000, bearing: 0, altFt: 3000, altGeoFt: 3300, gs: 0, track: 0 };
+  near(api.rdSolve(a, 0, 343, 100).alt, 3300 * 0.3048 - 100, 0.01, 'height with phone GPS');
+  near(api.rdSolve(a, 0, 343, 0).alt, 3000 * 0.3048, 0.01, 'height without phone GPS');
+  near(api.rdSolve({ distM: 1000, bearing: 0, altFt: 3000, gs: 0, track: 0 }, 0, 343, 100).alt, 3000 * 0.3048 - 100, 0.01, 'no GPS altitude sent');
+});
+
 test('radar: sound comes from where a moving plane was tau seconds ago', () => {
   // 100 kt due east, 4 km north of you, level with you: tau = 4000 / sqrt(343^2 - 51.444^2)
   const r = api.rdSolve({ distM: 4000, bearing: 0, altFt: 0, gs: 100, track: 90 }, 0, 343);

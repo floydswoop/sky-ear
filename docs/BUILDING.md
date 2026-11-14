@@ -16,58 +16,38 @@ SkyEar is a small Android app that shows a web page (the whole interface) and ad
 2. Open **Settings > Developer options** and switch on **USB debugging**.
 3. Connect the phone to the computer. When the phone asks "Allow USB debugging?", tap **Allow**.
 
-## 2. Create a blank project
+## 2. Get the project
 
-1. In Android Studio choose **New Project > Empty Activity > Next**.
-2. Set **Name** to `SkyEar`. Leave the **Package name** as the default (`com.example.skyear`). Keep **Language: Kotlin**. A minimum SDK of API 24 or higher is fine.
-3. Click **Finish** and wait for the bottom progress bar to stop.
-4. Choose your phone from the device list at the top and press the green **Run** button. You should see "Hello Android" on the phone. This proves your tools work. If it doesn't, fix that first; it is not a SkyEar problem.
+The repository is a complete Android Studio project, so there is nothing to copy by hand.
 
-## 3. Copy in the SkyEar files
+1. In Android Studio choose **File > New > Project from Version Control**.
+2. Set **URL** to `https://github.com/floydswoop/sky-ear.git` and pick a folder for it.
+3. Click **Clone**, then wait for the bottom progress bar to stop. The first sync downloads the build tools and can take several minutes.
 
-This repository's `app/src/main` folder mirrors the one in your project. Copy these files. Create the folders that don't exist yet (`layout`, `xml`, `drawable`):
+If you don't have Git, download the repository as a ZIP from GitHub, unpack it, and use **File > Open** on the unpacked folder.
 
-| From this repository | To your project |
-|---|---|
-| `app/src/main/AndroidManifest.xml` | `app/src/main/AndroidManifest.xml` (replace) |
-| `app/src/main/res/values/strings.xml` | `app/src/main/res/values/strings.xml` (replace) |
-| `app/src/main/assets/index.html` | `app/src/main/assets/index.html` (see below) |
-| `app/src/main/java/com/example/skyear/MainActivity.kt` | `app/src/main/java/com/example/skyear/MainActivity.kt` (replace) |
-| `app/src/main/java/com/example/skyear/ScanWidget.kt` | `app/src/main/java/com/example/skyear/ScanWidget.kt` (new, the home-screen widget) |
-| `app/src/main/res/layout/widget_scan.xml` | `app/src/main/res/layout/widget_scan.xml` (new) |
-| `app/src/main/res/xml/scan_widget_info.xml` | `app/src/main/res/xml/scan_widget_info.xml` (new) |
-| `app/src/main/res/drawable/widget_bg.xml` and `widget_btn.xml` | `app/src/main/res/drawable/` (new) |
-| `app/src/main/res/drawable/ic_launcher_background.xml` | same path (replace; the logo's background) |
-| `app/src/main/res/drawable-nodpi/ic_launcher_fg.png` and `ic_launcher_mono.png` | `app/src/main/res/drawable-nodpi/` (new; the logo) |
-| `app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` and `ic_launcher_round.xml` | same path (replace) |
-| `app/src/main/res/mipmap-*/ic_launcher.webp` and `ic_launcher_round.webp` | same paths (replace all five density folders) |
+## 3. Build and run
 
-Tips:
-- **Replace a file completely:** open it in Android Studio, press Ctrl+A, Delete, then paste the new contents. Don't merge old and new text.
-- **The `assets` folder doesn't exist yet.** Switch the left panel to **Android** view, right-click `app`, choose **New > Folder > Assets Folder**, accept the defaults, then put `index.html` inside. It must end up at `app/src/main/assets/index.html`.
-- **If your package name differs** from `com.example.skyear`, change line 1 of `MainActivity.kt` and `ScanWidget.kt` to match your project's package. The manifest assumes your theme is named `Theme.SkyEar`; if Android Studio marks it red, use the theme name your project already had.
-- **Permission lines belong inside `<manifest ...>` but outside any `<` `>` tag.** The most common mistake is pasting a `<uses-permission ... />` line in the middle of the opening tag.
+1. Choose your phone from the device list at the top and press the green **Run** button.
+2. The first start asks for permissions as you use each feature: microphone, location, and nearby devices.
 
-## 4. Build and run
-
-1. Choose **Build > Clean Project**.
-2. Press the green **Run** button.
-3. The first start asks for permissions as you use each feature: microphone, location, and nearby devices.
+To get an APK file instead, choose **Build > Build Bundle(s) / APK(s) > Build APK(s)**. It is written to `app/build/outputs/apk/debug/app-debug.apk`. From a command line, `gradlew assembleDebug` does the same.
 
 To check everything works: open the **Synth** tab and tap Start (use headphones), then try the **Field** tab's **Start scan** button. To try the widget, long-press the home screen, choose Widgets and add SkyEar.
 
+The app's ID is `io.github.floydswoop.skyear`. Builds made before version 0.3 used a different ID, so Android treats them as a separate app with its own clips and settings.
+
 ## Updating
 
-Replace the changed files the same way, run **Build > Clean Project**, then Run. Keep the same package name each time: Android treats a different package as a different app, and your saved clips live inside the app.
+Choose **Git > Pull** in Android Studio (or download a fresh ZIP), then Run. Your saved clips live inside the app and are kept across updates.
 
 ## Troubleshooting
 
 | What you see | Likely cause and fix |
 |---|---|
-| `Element type "manifest" must be followed by either attribute specifications...` | A permission line was pasted inside the opening `<manifest` tag. Put it after the `>` that closes that tag. |
-| Red error `... overrides nothing` or `Unresolved reference` | A partly pasted or mixed file. Replace the whole file as described above. If it persists, open an issue with every line starting `e:` from the Build panel. |
-| App closes at launch; Logcat says `FileNotFoundException: index.html` | `index.html` is not at `app/src/main/assets/index.html`, or has a different name such as `index (1).html`. |
-| Overhead or Library say "Android app only" | The page is old or the Kotlin file is old. Replace both files and Clean Project. |
+| Red error `... overrides nothing` or `Unresolved reference` | A changed or mixed file. Pull again or re-download the project. If it persists, open an issue with every line starting `e:` from the Build panel. |
+| App shows "SkyEar could not start" | `index.html` is not at `app/src/main/assets/index.html`, or has a different name such as `index (1).html`. |
+| Overhead or Library say "Android app only" | The page is old or the Kotlin file is old. Pull again and run **Build > Clean Project**. |
 | Microphone message `NotAllowedError` | The manifest lacks `RECORD_AUDIO` / `MODIFY_AUDIO_SETTINGS`, or the permission was denied: Settings > Apps > SkyEar > Permissions. |
 | No location prompt | The manifest lacks the location permissions. Rebuild after fixing it. |
 | Remote ID finds nothing | Turn on Bluetooth, Wi-Fi and Location. Only drones that broadcast Remote ID appear. Wi-Fi updates are slow (about every 30 seconds). |

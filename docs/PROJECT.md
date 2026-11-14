@@ -15,7 +15,7 @@ SkyEar started as a drone-safety idea: help people recognize the sound of differ
   - *Record a clip:* records audio, and at the same time logs nearby aircraft, Remote ID drones, and where the phone was pointing (compass direction and tilt).
 - **Library.** Stores your clips with analysis, likely source aircraft (allowing for the delay of sound travel), pointing data, labels and notes. Clips can be exported to Downloads, and a clip's measured sound can be copied into the synth.
 
-> **Status: experimental (version 0.1).** It was developed and field-tested on a single Android phone. It is a learning and research tool. It is **not** a drone detector, a safety system, or suitable for navigation or any safety-critical use. The brand-and-model presets are estimates from typical specifications, not measurements, and will not exactly match real recordings.
+> **Status: experimental (version 0.3).** It was developed and field-tested on a single Android phone. It is a learning and research tool. It is **not** a drone detector, a safety system, or suitable for navigation or any safety-critical use. The brand-and-model presets are estimates from typical specifications, not measurements, and will not exactly match real recordings.
 
 ## Requirements
 
@@ -27,8 +27,8 @@ SkyEar started as a drone-safety idea: help people recognize the sound of differ
 
 The full, beginner-friendly walkthrough is in **[docs/BUILDING.md](BUILDING.md)**. In short:
 
-1. Create a new **Empty Activity** project in Android Studio named **SkyEar** (keep the default package `com.example.skyear`).
-2. Copy the files from this repository's `app/src/main` folder over the matching files in your project.
+1. In Android Studio choose **File > New > Project from Version Control** and clone this repository.
+2. Wait for the first sync to finish.
 3. Press Run with your phone connected.
 
 The whole user interface is one file, `app/src/main/assets/index.html`, so you can change colors, text and layout without touching Kotlin.
@@ -39,7 +39,7 @@ The whole user interface is one file, `app/src/main/assets/index.html`, so you c
 |---|---|
 | Microphone | Listening mode and recording clips |
 | Location | Finds nearby aircraft, tags clips, and is required by Android for Bluetooth and Wi-Fi scanning |
-| Internet | Asks the ADS-B service for nearby aircraft (nothing else) |
+| Internet | Asks the ADS-B service for nearby aircraft and the weather service for conditions (nothing else) |
 | Bluetooth scan / Nearby devices / Wi-Fi state | Scanning for Remote ID broadcasts |
 
 Everything else (recordings, labels, settings) stays on the phone. See **[docs/PRIVACY.md](PRIVACY.md)**.
@@ -73,7 +73,7 @@ The Remote ID test messages were generated with the reference Open Drone ID libr
 
 ## Ideas for the future
 
-Auto-start recording when an aircraft comes near; bulk export; a standalone Gradle project that builds with a single command; a proper launcher icon; more drone and lookalike presets calibrated from real recordings; translations.
+Auto-start recording when an aircraft comes near; bulk export; more drone and lookalike presets calibrated from real recordings; translations.
 
 ## Credits and notices
 
