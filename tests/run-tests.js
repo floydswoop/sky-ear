@@ -21,7 +21,7 @@ global.performance = { now: () => 0 };
 global.requestAnimationFrame = () => {};
 global.window = global;
 
-const api = new Function(js + ';return {ridParse, ptCalc, sources, analyze, llDelta, cbSummary, rdSolve, rdPlace, rdDiff, soundSpeed, wxHints, wxLine, LIB}')();
+const api = new Function(js + ';return {ridParse, ptCalc, sources, analyze, llDelta, cbSummary, rdSolve, rdPlace, rdDiff, soundSpeed, wxHints, wxLine, vsApply, LIB}')();
 
 let passed = 0, failed = 0;
 function test(name, fn) {
@@ -173,6 +173,25 @@ test('radar: sound delay for a stationary source is slant range / speed of sound
   assert(Math.abs(r.tau - 12.445) < 0.01, 'tau ' + r.tau);          // hypot(4200, 762) / 343
   assert(r.lagM === 0 && Math.abs(r.hBr - r.nowBr) < 1e-9);
 });
+test('a sighting is stored with the clip and labels it only when unlabeled', () => {
+  const a = api.vsApply({ note: 'windy' }, 'drone', ' low and slow ', 5);
+  assert.deepStrictEqual(a.visual, { seen: 'drone', t: 5 });
+  assert.strictEqual(a.label, 'drone');
+  assert.strictEqual(a.note, 'windy; low and slow');
+  const b = api.vsApply({ label: 'aircraft' }, 'drone', '', 5);
+  assert.strictEqual(b.label, 'aircraft');
+  const c = api.vsApply({}, 'no', '', 5);
+  assert.strictEqual(c.visual.seen, 'no');
+  assert.strictEqual(c.label, undefined);
+  assert.strictEqual(api.vsApply({}, 'bogus', '', 5).visual, undefined);
+});
+
+test('scan summary says when the scan is recording its own clip', () => {
+  const base = { ov: null, ridOn: false, rid: [], now: 0 };
+  assert.ok(/for this scan/.test(api.cbSummary(Object.assign({ rec: true, scanRec: true }, base)).sound));
+  assert.ok(/Paused/.test(api.cbSummary(Object.assign({ rec: true }, base)).sound));
+});
+
 test('radar uses GPS altitude when the phone height is known', () => {
   const a = { distM: 1000, bearing: 0, altFt: 3000, altGeoFt: 3300, gs: 0, track: 0 };
   near(api.rdSolve(a, 0, 343, 100).alt, 3300 * 0.3048 - 100, 0.01, 'height with phone GPS');

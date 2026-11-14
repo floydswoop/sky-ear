@@ -32,8 +32,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-v
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}.top h1{margin:0}
 #hlp,#setB{min-width:44px;padding:6px 12px}
 #oOut p[data-hex]{padding:4px 0}
-#gd{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.62);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom))}
-#gd[hidden]{display:none}
+#gd,#vs{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.62);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom))}
+#gd[hidden],#vs[hidden]{display:none}
+#vs .stack button{width:100%;margin:0 0 8px;min-height:48px;text-align:left}
+#vsN{width:100%;font:inherit;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);margin:0 0 10px}
 .gc{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:16px;max-width:520px;width:100%;padding:18px;max-height:90vh;overflow:auto}
 .gc h2{font-size:24px;margin:2px 0 8px}.gc h2:focus{outline:none}
 .gc p{margin:0 0 10px;font-size:17px}
@@ -139,6 +141,8 @@ input[type=range]{grid-column:1/3;width:100%;accent-color:var(--ac);height:28px}
 <h3 class="grp">Scan</h3>
 <label><span>Check aircraft every</span><select id="sScan" style="grid-column:1/3"><option value="10">10 seconds</option><option value="15">15 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option></select></label>
 <label class="chk"><input type="checkbox" id="sKeep"><span>Keep the screen on while scanning</span></label>
+<label class="chk"><input type="checkbox" id="sRec"><span>Record a clip with each scan (the first 2 minutes of sound, saved on this phone)</span></label>
+<label class="chk"><input type="checkbox" id="sAsk"><span>After a clip is saved, ask whether you saw what you heard</span></label>
 <label class="chk"><input type="checkbox" id="sWx"><span>Get the weather (sends your location, rounded to about 1 km, to open-meteo.com)</span></label>
 <h3 class="grp">Pointing</h3>
 <label><span>Aim with</span><select id="ptMode" style="grid-column:1/3"><option value="1">Back of phone (like a camera)</option><option value="2">Top edge of phone</option></select></label>
@@ -177,6 +181,7 @@ input[type=range]{grid-column:1/3;width:100%;accent-color:var(--ac);height:28px}
 </section>
 </main>
 <div id="gd" role="dialog" aria-modal="true" aria-labelledby="gdT" hidden><div class="gc"><div class="gstep" id="gdS"></div><h2 id="gdT" tabindex="-1"></h2><div id="gdB"></div><div class="gdots" id="gdD" aria-hidden="true"></div><div class="row"><button id="gdBk" type="button">Back</button><button id="gdSk" type="button">Skip</button><button id="gdNx" type="button" class="main">Next</button></div></div></div>
+<div id="vs" role="dialog" aria-modal="true" aria-labelledby="vsT" hidden><div class="gc"><h2 id="vsT" tabindex="-1">Did you see it?</h2><p>Your answer is saved with this clip, on your phone only.</p><div class="stack"><button type="button" data-v="drone">Yes, a drone</button><button type="button" data-v="aircraft">Yes, an airplane or helicopter</button><button type="button" data-v="other">Yes, something else</button><button type="button" data-v="no">No, I only heard it</button></div><label for="vsN">Note (optional)</label><input type="text" id="vsN" maxlength="200" autocomplete="off"><div class="row"><button id="vsSk" type="button">Skip</button></div></div></div>
 <script>
 // Low-light (dark) theme draws spectrograms in pure amber so the screen stays easy on night-adapted eyes.
 let LL=false;
@@ -189,7 +194,8 @@ const $=s=>document.querySelector(s);
 // so a scan that repeats every 15 s does not repeat the same sentence.
 // Settings (saved on the phone). Defaults match how the app behaved before Settings existed.
 let UNITS=prefGet('units')||'av',SCAN_MS=(+prefGet('scanS')||15)*1000,BEAM=+prefGet('beam')||15,
-    WX_ON=prefGet('wxOn')!=='0',SPEAK=prefGet('speak')!=='0',KEEP_ON=prefGet('keepOn')==='1',DIAG=prefGet('diag')==='1';
+    WX_ON=prefGet('wxOn')!=='0',SPEAK=prefGet('speak')!=='0',KEEP_ON=prefGet('keepOn')==='1',DIAG=prefGet('diag')==='1',
+    SCAN_REC=prefGet('scanRec')==='1',ASK_SEEN=prefGet('askSeen')!=='0';
 function fmtD(m){
   if(UNITS==='us'){const ft=m*3.28084;return ft<1000?Math.round(ft)+' ft':(m/1609.344).toFixed(1)+' mi'}
   return m<1000?Math.round(m)+' m':(m/1000).toFixed(1)+' km';
@@ -673,6 +679,7 @@ function ovRender(){
 
 // ---- Recording and Library (Android app only) ----
 let rT=null,rOn=false,cur=null,delT=null;
+let cbRec=false,cbRecRes=null,cbClip=null;   // a clip the scan itself started; the clip saved during this scan
 const CLIP='https://skyear.local/clips/';
 $('#rGo').onclick=()=>{
   if(!window.Android){$('#rSt').textContent='Recording works in the Android app only.';return}
@@ -683,17 +690,63 @@ $('#rGo').onclick=()=>{
 };
 function recReset(){rOn=false;clearInterval(rT);$('#ptLive').textContent='';$('#rGo').textContent='Start recording';$('#rLv').style.width='0'}
 function onRecState(m){
+  if(m!=='started')cbRec=false;
+  if(cbRecRes){const r=cbRecRes;cbRecRes=null;r()}
   if(m==='started'){
     say('Recording started');rOn=true;ptLog=[];ptLast=0;ridLog=[];ridLogT=0;if(ridOn)ridSample();const t0=Date.now();$('#rGo').textContent='Stop recording';
     rT=setInterval(()=>{$('#rSt').textContent='Recording '+Math.floor((Date.now()-t0)/1000)+' s'},500);
   }else{recReset();$('#rSt').textContent=m.replace(/^error:/,'');say($('#rSt').textContent)}
+  if(cbOn)cbRender();
 }
 function onRecLevel(v){$('#rLv').style.width=Math.min(100,Math.round(Math.sqrt(+v)*100))+'%'}
 async function onClipSaved(id){
+  const scanClip=cbRec;cbRec=false;
   recReset();say('Clip saved. Analyzing.');$('#rSt').textContent='Saved. Analyzing...';
   try{await analyzeClip(id,ridLog.length?ridLog.slice():null,{decl:ptDecl,mode:+$('#ptMode').value,samples:ptLog.slice()});$('#rSt').textContent='Saved to the Library.';say('Analysis done. Saved to the Library.')}
   catch(e){$('#rSt').textContent='Saved to the Library, but analysis failed.'}
+  // Ask only after the analysis has written its results, so the answer is not overwritten.
+  if(scanClip&&cbOn)cbClip=id;else vsOpen(id);
 }
+// ---- "Did you see it?" Stored in the clip's own record as visual:{seen,t}. ----
+const SEEN={drone:'Saw a drone',aircraft:'Saw an airplane or helicopter',other:'Saw something else',no:'Heard only, not seen'};
+function vsApply(m,seen,note,now){
+  if(!SEEN[seen])return m;
+  m.visual={seen,t:now||Date.now()};
+  if(note&&note.trim())m.note=m.note?m.note+'; '+note.trim():note.trim();
+  if(!m.label&&seen!=='no')m.label=seen;   // a sighting is the best label there is; never replaces one already chosen
+  return m;
+}
+let vsId=null,vsPrev=null;
+function vsOpen(id){
+  if(!ASK_SEEN||!id||!window.Android||!$('#gd').hidden)return;
+  vsId=id;try{vsPrev=document.activeElement}catch(e){vsPrev=null}
+  $('#vsN').value='';$('#vs').hidden=false;$('main').inert=true;
+  try{$('#vsT').focus()}catch(e){}
+  say('Did you see it? Choose an answer or skip.');
+}
+function vsClose(){
+  $('#vs').hidden=true;$('main').inert=false;vsId=null;
+  try{if(vsPrev&&vsPrev.focus)vsPrev.focus()}catch(e){}
+}
+function vsSave(seen){
+  const id=vsId,note=$('#vsN').value;vsClose();
+  try{
+    const m=vsApply(JSON.parse(Android.getClip(id)),seen,note);
+    Android.saveClip(id,JSON.stringify(m));
+    if(cur&&cur.id===id)libOpen(id);
+    $('#rSt').textContent='Saved to the Library: '+SEEN[seen].toLowerCase()+'.';say('Answer saved with the clip.');
+  }catch(e){$('#rSt').textContent='Could not save the answer. You can set it in the Library.'}
+}
+$('#vs').addEventListener('click',e=>{const b=e.target.closest('button[data-v]');if(b)vsSave(b.dataset.v)});
+$('#vsSk').onclick=vsClose;
+try{document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!$('#vs').hidden)vsClose()})}catch(e){}
+$('#vs').addEventListener('keydown',ev=>{
+  if(ev.key!=='Tab')return;
+  const f=Array.from($('#vs').querySelectorAll('button,input'));
+  const a=f[0],z=f[f.length-1];
+  if(ev.shiftKey&&(document.activeElement===a||document.activeElement===$('#vsT'))){ev.preventDefault();z.focus()}
+  else if(!ev.shiftKey&&document.activeElement===z){ev.preventDefault();a.focus()}
+});
 function onExport(m){const e=$('#cMsg');if(e)e.textContent=m}
 
 function ptAt(pt,T){let b=null,d=1e12;for(const q of pt.samples){const x=Math.abs(q.t-T);if(x<d){d=x;b=q}}return d<=3000?b:null}
@@ -767,6 +820,7 @@ function clipHtml(m){
   h+='<audio id="cAu" controls style="width:100%"></audio>';
   h+='<label><span>Note</span><input type="text" id="cNote" value="'+esc(m.note||'')+'" style="grid-column:1/3;font:inherit;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg)"></label>';
   h+='<label><span>What was it?</span><select id="cLab" style="grid-column:1/3"><option value="">Not labeled</option><option value="aircraft">Aircraft (not a drone)</option><option value="drone">Drone</option><option value="other">Other, not a drone</option></select></label>';
+  h+='<label><span>Did you see it?</span><select id="cSeen" style="grid-column:1/3"><option value="">Not answered</option>'+Object.keys(SEEN).map(k=>'<option value="'+k+'">'+SEEN[k]+'</option>').join('')+'</select></label>';
   h+='<label id="cTypW"><span>Drone type</span><select id="cTyp" style="grid-column:1/3">'+TYPES.map(t=>'<option>'+t+'</option>').join('')+'</select></label>';
   if(!an)h+='<p>Not analyzed yet.</p>';
   else if(an.quiet)h+='<p>Too quiet to analyze.</p>';
@@ -803,6 +857,8 @@ async function libOpen(id){
   $('#cLab').onchange=ev=>{cur.m.label=ev.target.value;if(cur.m.label==='drone')cur.m.dtype=$('#cTyp').value;tg();Android.saveClip(id,JSON.stringify(cur.m))};
   $('#cTyp').onchange=ev=>{cur.m.dtype=ev.target.value;Android.saveClip(id,JSON.stringify(cur.m))};
   $('#cNote').onchange=ev=>{cur.m.note=ev.target.value;Android.saveClip(id,JSON.stringify(cur.m))};
+  $('#cSeen').value=m.visual&&SEEN[m.visual.seen]?m.visual.seen:'';
+  $('#cSeen').onchange=ev=>{if(ev.target.value)cur.m.visual={seen:ev.target.value,t:Date.now()};else delete cur.m.visual;Android.saveClip(id,JSON.stringify(cur.m))};
 }
 $('#cDet').onclick=async e=>{
   const b=e.target.closest('button');if(!b||!cur)return;
@@ -959,7 +1015,7 @@ let cbOn=false,cbMic=null,cbSrc=null,cbAn=null,cbTimer=null,cbPing=null,cbSnd=nu
 // Turns the latest readings into three plain-text lines. No browser needed, so it can be tested.
 function cbSummary(x){
   const out={};
-  if(x.rec)out.sound='Paused while a clip is recording.';
+  if(x.rec)out.sound=x.scanRec?'Recording a clip for this scan (up to 2 minutes). Sound analysis starts after it.':'Paused while a clip is recording.';
   else if(x.micErr)out.sound=x.micErr;
   else if(!x.snd)out.sound='Listening...';
   else if(x.snd.quiet)out.sound='Too quiet to analyze. Point the phone toward the sound.';
@@ -989,7 +1045,7 @@ function cbSummary(x){
 }
 function cbRender(){
   if(!cbOn)return;
-  const now=Date.now(),s=cbSummary({rec:rOn,micErr:cbMicErr,snd:cbSnd,ovErr,ov:ovLast,ridOn,ridErr,ridInfo,phone:ridPhone,now,
+  const now=Date.now(),s=cbSummary({rec:rOn,scanRec:cbRec,micErr:cbMicErr,snd:cbSnd,ovErr,ov:ovLast,ridOn,ridErr,ridInfo,phone:ridPhone,now,
     rid:Object.values(ridU).filter(u=>now-u.seen<60000)});
   sayChange('drone',s.drone,s.drone);
   $('#cbOut').innerHTML='<p><b>Sound</b><br>'+esc(s.sound)+'</p><p><b>Aircraft</b><br>'+esc(s.air)+'</p><p><b>Drone signals</b><br>'+esc(s.drone)+'</p>';
@@ -1036,7 +1092,7 @@ function cbOvDone(){
 }
 // Asks Android for nearby aircraft. The promise settles when an answer (or an error) comes back, or after 45 s.
 function cbPingNow(){
-  if(rOn||(cbOvBusy&&Date.now()-cbOvT<20000))return Promise.resolve();
+  if((rOn&&!cbRec)||(cbOvBusy&&Date.now()-cbOvT<20000))return Promise.resolve();
   cbOvBusy=true;cbOvT=Date.now();
   const p=new Promise(res=>{cbOvRes=res;setTimeout(res,45000)});
   Android.requestOverhead(+$('#oRad').value);
@@ -1057,7 +1113,12 @@ async function cbStart(){
   cbOn=true;cbSnd=null;cbMicErr=null;ovLast=null;ovErr=null;ridUserStop=false;ridErr=null;
   setCbUi(true,'Starting...');cbRender();
   // One permission prompt at a time: microphone, then location (aircraft), then Bluetooth and nearby devices (drones).
-  await cbMicStart();
+  cbClip=null;
+  if(SCAN_REC&&Android.startRecording){
+    // The clip uses the microphone first; live sound analysis takes over when it ends (cbTick).
+    cbRec=true;const w=new Promise(res=>{cbRecRes=res;setTimeout(res,30000)});
+    Android.startRecording(+$('#oRad').value);await w;
+  }else await cbMicStart();
   if(!cbOn||tok!==cbTok)return;
   await cbPingNow();
   if(!cbOn||tok!==cbTok)return;
@@ -1074,6 +1135,9 @@ function cbStop(){
   if(ridOn){ridUserStop=true;Android.stopRid()}
   setCbUi(false);
   $('#cbOut').textContent='Scan stopped.';say('Scan stopped.');
+  if(cbRecRes){const r=cbRecRes;cbRecRes=null;r()}
+  if(rOn&&cbRec){try{Android.stopRecording()}catch(e){}}        // onClipSaved asks the question once the clip is in
+  else if(cbClip){const id=cbClip;cbClip=null;vsOpen(id)}
 }
 $('#cbGo').onclick=()=>cbOn?cbStop():cbStart();
 
@@ -1427,13 +1491,15 @@ function settingsInit(){
   sel('sText','textZoom','100',()=>applyTextZoom());
   chk('sDiag','diag',false,v=>{DIAG=v;applyDiag();rdDraw()});
   sel('sScan','scanS','15',v=>{SCAN_MS=+v*1000;if(cbOn&&cbPing){clearInterval(cbPing);cbPing=setInterval(cbTick,SCAN_MS)}});
+  chk('sRec','scanRec',false,v=>{SCAN_REC=v});
+  chk('sAsk','askSeen',true,v=>{ASK_SEEN=v});
   chk('sKeep','keepOn',false,v=>{KEEP_ON=v;try{if(cbOn&&Android.setKeepScreenOn)Android.setKeepScreenOn(v)}catch(e){}});
   chk('sWx','wxOn',true,v=>{WX_ON=v;if(!v)wxSet(null)});
   sel('sBeam','beam','15',v=>{BEAM=+v;rdDraw()});
   chk('sSpeak','speak',true,v=>{SPEAK=v});
   $('#sGuide').onclick=()=>{tab(lastTab);guideOpen()};
   $('#sReset').onclick=()=>{
-    ['units','theme','textZoom','diag','scanS','keepOn','wxOn','beam','speak','ptMode','radNm','rdUp'].forEach(k=>prefSet(k,''));
+    ['units','theme','textZoom','diag','scanS','scanRec','askSeen','keepOn','wxOn','beam','speak','ptMode','radNm','rdUp'].forEach(k=>prefSet(k,''));
     $('#sMsg').textContent='Settings reset. Reloading.';
     setTimeout(()=>{try{location.reload()}catch(e){}},400);
   };

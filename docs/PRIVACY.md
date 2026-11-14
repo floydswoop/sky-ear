@@ -21,7 +21,7 @@ Remote ID signals are broadcasts that drones are required to make so they can be
 
 ## Recording sound
 
-Microphone recordings can contain voices and other private sounds. Only record where it is lawful and considerate, and delete clips you do not need.
+Microphone recordings can contain voices and other private sounds. Sound is saved only when you press Record, or during a scan if you switch on **Record a clip with each scan** in Settings (off by default; it keeps the first 2 minutes). After a clip is saved the app can ask whether you saw what you heard; the answer is stored in the clip's record on the phone. Only record where it is lawful and considerate, and delete clips you do not need.
 
 ## Permissions, in plain terms
 

@@ -156,4 +156,8 @@ The Field tab is built around the scan button, the radar and the aircraft list. 
 
 Long-press the home screen, choose Widgets, and add **SkyEar**. Its **Start scan** button opens the app (or brings it forward) and starts a scan, and the name opens the app normally. The button sends the app an intent extra; the page runs `widgetStart()` once it has loaded, so it also works from a cold start. It does nothing while the first-run guide is open. Android still asks for microphone and location permission as usual the first time.
 
+## Sightings
+
+After a clip is saved the page asks "Did you see it?" and stores the answer in the clip's JSON as `visual: {seen, t}`, where `seen` is `drone`, `aircraft`, `other` or `no` (heard only). A sighting also sets the clip's label if it had none. With **Record a clip with each scan** on, the scan starts a recording itself (the usual 2-minute limit applies), keeps checking aircraft while it runs, and asks the question when the scan stops. Clips with a sighting are the ground truth for checking the synth against real sounds.
+
 The equations in one place, with plain-language notes, are in [MATH.md](MATH.md).
