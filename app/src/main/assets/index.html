@@ -24,6 +24,7 @@ button:disabled{opacity:.45}
 .tabs #tOv{color:var(--fl);border-color:var(--fl);font-weight:700}
 .tabs #tOv.sel{background:var(--fl);color:var(--flfg);border-color:var(--fl)}
 #cbGo{background:var(--fl);color:var(--flfg);border-color:var(--fl);min-height:56px;font-size:18px}
+#rGo{min-height:56px;font-size:16px}
 #cbGo:focus-visible,.tabs #tOv:focus-visible{outline-color:var(--fl)}
 .stack{display:grid;gap:8px}.stack button{width:100%}.res p{margin:6px 0}
 select{font:inherit;font-weight:600;width:100%;min-height:44px;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:8px;padding:8px 10px;margin-bottom:4px}
@@ -104,8 +105,11 @@ input[type=range]{grid-column:1/3;width:100%;accent-color:var(--ac);height:28px}
 <div class="stack"><button id="lUse" hidden>Copy best match to Synth</button></div>
 </section>
 <section id="ovh" role="tabpanel" aria-labelledby="tOv">
-<div class="row"><button id="cbGo" class="main">Start scan</button></div>
-<p class="cap" id="cbHint">Listens, checks aircraft and scans for drone signals. Your approximate location goes to the aircraft and weather services. Android app only.</p>
+<div class="row"><button id="cbGo" class="main">Start scan</button><button id="rGo" class="main">Start recording</button></div>
+<div id="rBar" aria-hidden="true" hidden style="height:8px;background:var(--bd);border-radius:4px;overflow:hidden;margin-bottom:8px"><div id="rLv" style="height:100%;width:0;background:var(--ac)"></div></div>
+<div id="ptLive" class="res"></div>
+<div id="rSt" class="res"></div>
+<p class="cap" id="cbHint">Scan listens, checks aircraft and scans for drone signals. Recording saves up to 2 minutes of sound, tagged with nearby aircraft, weather and where you point the phone. Your approximate location goes to the aircraft and weather services. Android app only.</p>
 <div id="cbOut" class="res"></div>
 <label><span>Search radius</span><b id="oR"></b><input type="range" id="oRad" min="5" max="50" step="5" value="15" aria-valuetext="15 nautical miles"></label>
 <canvas id="rdr" width="640" height="640" role="img" aria-label="Radar of nearby aircraft and the direction the phone points"></canvas>
@@ -123,12 +127,6 @@ input[type=range]{grid-column:1/3;width:100%;accent-color:var(--ac);height:28px}
 <div class="row"><button id="idGo" class="main">Start scanning</button></div>
 <div id="idSt" class="res"></div>
 <div id="idList" class="res"></div></div></details>
-<details class="sec" id="dRec"><summary><h2>Record a clip</h2></summary><div class="in">
-<p class="mut">Records audio tagged with nearby aircraft, weather and the direction you point (aim mode is in Settings). Keep the screen on and point the phone at the sound. Stops after 2 minutes.</p>
-<div class="row"><button id="rGo" class="main">Start recording</button></div>
-<div aria-hidden="true" style="height:8px;background:var(--bd);border-radius:4px;overflow:hidden;margin-bottom:8px"><div id="rLv" style="height:100%;width:0;background:var(--ac)"></div></div>
-<div id="ptLive" class="res"></div>
-<div id="rSt" class="res"></div></div></details>
 </section>
 <section id="set" role="tabpanel" aria-label="Settings" hidden>
 <h2 style="font-size:22px;margin:8px 0 0">Settings</h2>
@@ -688,12 +686,12 @@ $('#rGo').onclick=()=>{
   $('#rSt').textContent='Starting...';
   Android.startRecording(+$('#oRad').value);
 };
-function recReset(){rOn=false;clearInterval(rT);$('#ptLive').textContent='';$('#rGo').textContent='Start recording';$('#rLv').style.width='0'}
+function recReset(){rOn=false;clearInterval(rT);$('#ptLive').textContent='';$('#rGo').textContent='Start recording';$('#rLv').style.width='0';$('#rBar').hidden=true}
 function onRecState(m){
   if(m!=='started')cbRec=false;
   if(cbRecRes){const r=cbRecRes;cbRecRes=null;r()}
   if(m==='started'){
-    say('Recording started');rOn=true;ptLog=[];ptLast=0;ridLog=[];ridLogT=0;if(ridOn)ridSample();const t0=Date.now();$('#rGo').textContent='Stop recording';
+    say('Recording started');rOn=true;ptLog=[];ptLast=0;ridLog=[];ridLogT=0;if(ridOn)ridSample();const t0=Date.now();$('#rGo').textContent='Stop recording';$('#rBar').hidden=false;
     rT=setInterval(()=>{$('#rSt').textContent='Recording '+Math.floor((Date.now()-t0)/1000)+' s'},500);
   }else{recReset();$('#rSt').textContent=m.replace(/^error:/,'');say($('#rSt').textContent)}
   if(cbOn)cbRender();

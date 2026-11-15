@@ -12,7 +12,7 @@ SkyEar started as a drone-safety idea: help people recognize the sound of differ
   - *Radar:* plots nearby aircraft around you with the direction the phone points, so you can aim at a contact. Switches between pointing-up and north-up.
   - *What's overhead:* lists nearby aircraft from public ADS-B data (type, distance, direction, altitude, angle above the horizon).
   - *Remote ID:* scans Bluetooth and Wi-Fi for drones broadcasting the standard Remote ID signal.
-  - *Record a clip:* records audio, and at the same time logs nearby aircraft, Remote ID drones, and where the phone was pointing (compass direction and tilt).
+  - *Start recording (beside Start scan):* records audio, and at the same time logs nearby aircraft, Remote ID drones, and where the phone was pointing (compass direction and tilt).
 - **Library.** Stores your clips with analysis, likely source aircraft (allowing for the delay of sound travel), pointing data, labels and notes. Clips can be exported to Downloads, and a clip's measured sound can be copied into the synth.
 
 > **Status: experimental (version 0.3).** It was developed and field-tested on a single Android phone. It is a learning and research tool. It is **not** a drone detector, a safety system, or suitable for navigation or any safety-critical use. The brand-and-model presets are estimates from typical specifications, not measurements, and will not exactly match real recordings.
